@@ -8,8 +8,7 @@ builtins:
 handlers:
 
 - url: .*
-  script: notes_app.main.app
-  login: required
+  script: naziscore.main.app
 
 libraries:
 - name: jinja2
