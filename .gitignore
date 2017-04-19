@@ -88,5 +88,10 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Credentials file
+credentials.py
+
 # Emacs temp files
 *~
+*#
+.#*
