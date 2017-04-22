@@ -1,0 +1,4 @@
+# -*- coding:utf-8 -*-
+
+CUSTOMER_KEY = 'KEY_GOES_HERE'
+CUSTOMER_SECRET = 'SECRET_GOES_HERE'
