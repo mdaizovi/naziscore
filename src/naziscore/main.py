@@ -18,7 +18,7 @@ app = webapp2.WSGIApplication(
         # calculated yet. If the score is not calculates, schedule a crawl over
         # the profile.
         webapp2.Route(
-            '/<profileid>/score.json', ScoreHandler, name='score_handler'),
+            '/<profile_id>/score.json', ScoreHandler, name='score_handler'),
         webapp2.Route(
             '/calculate', CalculationHandler, name='calculation_handler')
     ],
