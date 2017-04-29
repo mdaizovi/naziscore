@@ -15,7 +15,6 @@ from google.appengine.api import memcache
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 
-from appengine_fixture_loader.loader import load_fixture
 
 # If your project has a src/main.py file, it'll check if it imports
 try:
@@ -68,9 +67,6 @@ class MemcacheTest(unittest.TestCase):
         self.testbed.activate()
         self.testbed.init_datastore_v3_stub()
         self.testbed.init_memcache_stub()
-        self.loaded_data = load_fixture(
-            os.path.join(
-                os.path.dirname(__file__), 'persons.json'), Person)
 
     def tearDown(self):
         self.testbed.deactivate()
