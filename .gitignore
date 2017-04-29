@@ -91,6 +91,9 @@ ENV/
 # Credentials file
 credentials.py
 
+# Our virtualenv
+.venv
+
 # Emacs temp files
 *~
 *#
