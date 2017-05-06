@@ -1,4 +1,4 @@
-GCLOUD_HOME = $(shell which gcloud | sed "s/\(.*\)\/bin\/gcloud/\1/")/platform/google_appengine/google
+GCLOUD_HOME = $(shell readlink -f $(shell which gcloud) | sed "s/\(.*\)\/bin\/gcloud/\1/")/platform/google_appengine/google
 
 venv: .venv
 	@ln -sf $(GCLOUD_HOME) .venv/lib/python2.7/
