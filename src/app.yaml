@@ -8,7 +8,7 @@ builtins:
 handlers:
 
 - url: .*
-  script: notes_app.main.app
+  script: naziscore.main.app
   login: required
 
 libraries:
