@@ -5,7 +5,12 @@ import webapp2
 
 from google.appengine.api import taskqueue
 
+from naziscore.credentials import (
+    CUSTOMER_KEY,
+    CUSTOMER_SECRET
+)
 from naziscore.models import Score
+
 
 class ScoreHandler(webapp2.RequestHandler):
 
@@ -35,7 +40,9 @@ class ScoreHandler(webapp2.RequestHandler):
 
 
 class CalculationHandler(webapp2.RequestHandler):
-
+    """
+    Makes requests to the Twitter API to retrieve the score.
+    """
     def post(self):
         # TODO: Here we get the user's stream, profile and calculate their nazi
         # score aplying the criteria functions on the data and adding the
