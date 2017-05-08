@@ -15,6 +15,43 @@ from naziscore.credentials import (
 from naziscore.models import Score
 
 
+def get_access_token():
+    """Tries to obtain access token from memcache and, if it fails,
+    obtains a new set and stores in memcache.
+
+    See https://dev.twitter.com/oauth/application-only"""
+    encoded_key = urllib.quote_plus(CUSTOMER_KEY)
+    encoded_secret = urllib.quote_plus(CUSTOMER_SECRET)
+    encoded_credentials = base64.b64encode(
+        "{}:{}".format(encoded_key, encoded_secret))
+    response = urlfetch.fetch(
+        "https://api.twitter.com/oauth2/token",
+        headers={"Authorization": "Basic " + encoded_credentials})
+    import ipdb; ipdb.set_trace()
+
+
+def authenticated_get(
+        url, customer_key=CUSTOMER_KEY, customer_secret=CUSTOMER_SECRET):
+    """Performs an authenticated GET to the given URL.
+
+    https://dev.twitter.com/oauth/application-only"""
+    pass
+
+
+def get_profile(profile_id):
+    """Returns a dict from the Twitter GET users/show API.
+
+    See https://dev.twitter.com/rest/reference/get/users/show"""
+    pass
+
+
+def get_timeline(profile_id):
+    """Returns a dict from the Twitter GET statuses/user_timeline API.
+
+    See https://dev.twitter.com/rest/reference/get/statuses/user_timeline"""
+    pass
+
+
 class ScoreHandler(webapp2.RequestHandler):
 
     def get(self, profile_id):
