@@ -9,5 +9,8 @@ venv: .venv
 .venv:
 	@virtualenv .venv
 
-clean:
+clean_venv:
 	@$(RM) -rf .venv
+
+clean:
+	@find $(CURDIR) -name '*.pyc' -exec $(RM) {} \;
