@@ -15,6 +15,8 @@ from google.appengine.api import memcache
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 
+from naziscore.handlers import get_access_token
+
 
 # If your project has a src/main.py file, it'll check if it imports
 try:
@@ -43,6 +45,11 @@ class SanityTest(unittest.TestCase):
         Tests the sanity of the unit testing framework and if we can import all
         we need to work
         """
+        self.assertTrue(True)
+
+    def test_get_token(self):
+        x = get_access_token()
+        import ipdb; ipdb.set_trace()
         self.assertTrue(True)
 
 

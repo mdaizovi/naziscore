@@ -4,6 +4,7 @@ import base64
 import json
 import webapp2
 import urllib
+import logging
 
 from google.appengine.api import taskqueue
 from google.appengine.api import urlfetch
@@ -26,8 +27,10 @@ def get_access_token():
         "{}:{}".format(encoded_key, encoded_secret))
     response = urlfetch.fetch(
         "https://api.twitter.com/oauth2/token",
+        method=urlfetch.POST,
         headers={"Authorization": "Basic " + encoded_credentials})
-    import ipdb; ipdb.set_trace()
+    return json.loads(response.content)
+    logging.debug(response.status_code)
 
 
 def authenticated_get(
