@@ -1,9 +1,12 @@
 # -*- coding:utf-8 -*-
 
+import base64
 import json
 import webapp2
+import urllib
 
 from google.appengine.api import taskqueue
+from google.appengine.api import urlfetch
 
 from naziscore.credentials import (
     CUSTOMER_KEY,

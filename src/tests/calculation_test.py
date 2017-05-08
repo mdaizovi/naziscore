@@ -4,14 +4,9 @@
 Validates the score calculation.
 """
 
-import datetime
-import os
 import unittest
-import webtest
 
 # The test will error out if we can't import these items
-from google.appengine.api import memcache
-from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 
 from naziscore.scoring import (

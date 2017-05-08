@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+
 def score_from_profile(profile_json):
     """Returns the score for the profile JSON"""
     return 0
