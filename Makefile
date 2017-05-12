@@ -8,6 +8,7 @@ venv: .venv
 
 .venv:
 	@virtualenv .venv
+	.venv/bin/pip install -r requirements.txt
 
 clean_venv:
 	@$(RM) -rf .venv
