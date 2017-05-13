@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import datetime
 import base64
 import json
 import logging
@@ -15,6 +16,7 @@ from naziscore.credentials import (
     CUSTOMER_SECRET
 )
 from naziscore.models import Score
+from naziscore.scoring import calculated_score
 
 
 def get_access_token(force=False):
@@ -51,7 +53,8 @@ def authenticated_get(
         url,
         method=urlfetch.GET,
         headers={'Authorization': 'Bearer ' + token})
-    return json.loads(response.content)
+    if response.status_code == urlfetch.httplib.OK:
+        return response.content
 
 
 def get_profile(profile_id):
@@ -67,7 +70,10 @@ def get_timeline(profile_id):
     """Returns a dict from the Twitter GET statuses/user_timeline API.
 
     See https://dev.twitter.com/rest/reference/get/statuses/user_timeline"""
-    pass
+    return authenticated_get(
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?'
+        'screen_name={}'.format(
+            profile_id))
 
 
 class ScoreHandler(webapp2.RequestHandler):
@@ -108,8 +114,16 @@ class CalculationHandler(webapp2.RequestHandler):
         profile_id = self.request.get('profile_id')
         if profile_id is not None:
             score = Score.query(Score.profile_id == profile_id).get()
-            if score is None:
-                Score(profile_id=profile_id, score=0).put()
+            if score is None or score.last_updated < (
+                    datetime.datetime.now() - datetime.timedelta(days=7)):
+                profile = get_profile(profile_id)
+                if profile is not None:
+                    timeline = get_timeline(profile_id)
+                    if timeline is not None:
+                        Score(profile_id=profile_id,
+                              score=calculated_score(profile, timeline),
+                              profile_text=profile,
+                              timeline_text=timeline).put()
             else:
-                score.score = 1
-                score.put()
+                # We have a score. Nothing to do.
+                pass
