@@ -87,7 +87,7 @@ class ScoreHandler(webapp2.RequestHandler):
         if score is None:
             try:
                 taskqueue.add(
-                    url='/calculate',
+                    url='/v1/calculate',
                     name=profile_id,
                     params={'profile_id': profile_id})
             except taskqueue.TaskAlreadyExistsError:
