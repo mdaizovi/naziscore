@@ -94,6 +94,10 @@ class ScoreHandler(webapp2.RequestHandler):
                 # We already are going to check this person. There is nothing
                 # to do here.
                 pass
+            except taskqueue.TombstonedTaskError:
+                # This task is too recent. We shouldn't try again so soon.
+                pass
+
             obj = {'profile_id': profile_id,
                    'last_updated': None}
         else:
