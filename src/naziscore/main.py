@@ -5,10 +5,7 @@ import webapp2
 
 from google.appengine.ext import ndb
 
-from naziscore.handlers import (
-    CalculationHandler,
-    ScoreHandler
-)
+from naziscore.handlers import ScoreHandler
 
 DEBUG = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
 
@@ -18,9 +15,8 @@ app = webapp2.WSGIApplication(
         # calculated yet. If the score is not calculates, schedule a crawl over
         # the profile.
         webapp2.Route(
-            '/v1/<profile_id>/score.json', ScoreHandler, name='score_handler'),
-        webapp2.Route(
-            '/v1/calculate', CalculationHandler, name='calculation_handler')
+            '/v1/<profile_id>/score.json',
+            ScoreHandler, name='score_handler_v1'),
     ],
     debug=DEBUG)
 

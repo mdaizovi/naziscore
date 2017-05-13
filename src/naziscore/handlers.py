@@ -81,13 +81,13 @@ class ScoreHandler(webapp2.RequestHandler):
     def get(self, profile_id):
 
         self.response.headers['Content-Type'] = 'application/json'
-        # TODO: retrieve the score from the datastore. If not found, schedule a
-        # calculation.
+        # TODO: retrieve the score from memcache before trying the
+        # datastore. If not found, schedule a calculation.
         score = Score.query(Score.profile_id == profile_id).get()
         if score is None:
             try:
                 taskqueue.add(
-                    url='/v1/calculate',
+                    url='/v1/worker/calculate',
                     name=profile_id,
                     params={'profile_id': profile_id})
             except taskqueue.TaskAlreadyExistsError:

@@ -7,6 +7,10 @@ builtins:
 
 handlers:
 
+- url: /v1/worker/.*
+  script: naziscore.worker.app
+  login: admin
+
 - url: .*
   script: naziscore.main.app
 
