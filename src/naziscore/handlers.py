@@ -55,6 +55,10 @@ def authenticated_get(
         headers={'Authorization': 'Bearer ' + token})
     if response.status_code == urlfetch.httplib.OK:
         return response.content
+    else:
+        message = 'Url ' + url + ' returned ' + response.content
+        logging.warning(message)
+        raise urlfetch.httplib.HTTPException(message)
 
 
 def get_profile(profile_id):
