@@ -10,19 +10,18 @@ store in the datastore (as a queued task).
 
 # Endpoints
 - GET /{name} returns a rendered HTML page with that person's score or a
-  404 if there is no data (yet).
-- GET /{name}.json returns the score as a JSON.
+  404 if there is no data (yet). It triggers a calculation.
+- GET /{name}/score.json returns the score as a JSON. If there is no
+  data, it triggers a calculation.
 
 # Criteria
 The application gives a score based on the Twitter profile of the
 user. Points are given according to the criteria listed below:
 
-- #MAGA hashtag in the profile
-- #MAGA hashtag in recent tweets
+- #MAGA, #WhiteGenocide and similar hashtags in the profile
+- #MAGA, #WhiteGenocide and similar hashtags in recent tweets
 - Less than 10 followers
 - Profile less than two months old
 - Has a frog emoji in the name
 - Has a gab.ai URL
 - Used terms like "libtard" in recent tweets
-- The #WhiteGenocide hashtag in the profile
-- The #WhiteGenocide hashtag in recent tweets

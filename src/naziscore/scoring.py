@@ -31,10 +31,16 @@ def points_from_gabai(profile, timeline):
 
 
 def points_from_pepes(profile, timeline):
-    "Returns the number of different racist symbols in the name."
+    "Returns the number of different racist symbols in the name and tweets."
     result = 0
+    import pdb; pdb.set_trace()
     for pepe in u"🐸🥛👌":  # Pepe, milk and OK
         result += 1 if pepe in profile['name'] else 0
     if result > 0:
         logging.info(profile['screen_name'] + 'tested positive for pepe')
     return result
+
+
+def points_from_magas(profile, timeline):
+    "Returns the number of trigger hasthags in the profile and tweets."
+    return 0
