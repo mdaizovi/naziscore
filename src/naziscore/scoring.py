@@ -34,8 +34,11 @@ def points_from_pepes(profile, timeline):
     "Returns the number of different racist symbols in the name and tweets."
     result = 0
     import pdb; pdb.set_trace()
+    # Check the profile
     for pepe in u"🐸🥛👌":  # Pepe, milk and OK
         result += 1 if pepe in profile['name'] else 0
+    # Check the tweets themselves
+
     if result > 0:
         logging.info(profile['screen_name'] + 'tested positive for pepe')
     return result
