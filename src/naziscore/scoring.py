@@ -5,6 +5,11 @@ import logging
 
 from inspect import isfunction
 
+from naziscore.deplorable_constants import (
+    PEPES,
+    HASHTAGS
+)
+
 
 def calculated_score(profile_json, posts_json):
     """Returns the score for the recent posts JSON"""

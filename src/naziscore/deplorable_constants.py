@@ -1,5 +1,9 @@
 # -*- coding:utf-8 -*-
 
+HASHTAGS = ['#MAGA']
+
+PEPES = u"🐸🥛👌"
+
 # List collected from
 # https://docs.google.com/spreadsheets/d/1o3FFiCB_W2sCLH7g6iPwzC9lmfIj7ojlA-htvQCJhaw/edit#gid=0
 
