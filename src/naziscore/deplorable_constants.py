@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-HASHTAGS = ['#MAGA']
+HASHTAGS = ['#MAGA', '#altright']
 
 PEPES = u"🐸🥛👌"
 
