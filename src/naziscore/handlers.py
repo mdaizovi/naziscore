@@ -124,7 +124,13 @@ class CalculationHandler(webapp2.RequestHandler):
             score = Score.query(Score.profile_id == profile_id).get()
             if score is None or score.last_updated < (
                     datetime.datetime.now() - datetime.timedelta(days=7)):
-                profile = get_profile(profile_id)
+                try:
+                    profile = get_profile(profile_id)
+                except urlfetch.httplib.HTTPException as e:
+                    if 'User has been suspended' in e.message:
+                        profile = None
+                    else:
+                        raise
                 if profile is not None:
                     timeline = get_timeline(profile_id)
                     if timeline is not None:
