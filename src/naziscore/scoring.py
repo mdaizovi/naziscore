@@ -31,24 +31,42 @@ def points_from_gabai(profile, timeline):
               or 'gab.ai' in profile['name']
               else 0)
     if result > 0:
-        logging.info(profile['screen_name'] + 'tested positive for gab.ai')
+        logging.info(
+            '{} scored {} for gab.ai'.format(profile['screen_name'], result))
     return result
 
 
 def points_from_pepes(profile, timeline):
     "Returns the number of different racist symbols in the name and tweets."
     result = 0
-    import pdb; pdb.set_trace()
     # Check the profile
-    for pepe in u"🐸🥛👌":  # Pepe, milk and OK
+    tweets = [t['text'] for t in timeline]
+    for pepe in PEPES:  # Pepe, milk and OK
         result += 1 if pepe in profile['name'] else 0
-    # Check the tweets themselves
+        result += 1 if pepe in profile['description'] else 0
+        # Check the tweets themselves
+        for tweet in tweets:
+            result += 1 if pepe in tweet else 0
 
     if result > 0:
-        logging.info(profile['screen_name'] + 'tested positive for pepe')
+        logging.info(
+            '{} scored {} for gab.ai'.format(profile['screen_name'], result))
     return result
 
 
 def points_from_magas(profile, timeline):
     "Returns the number of trigger hasthags in the profile and tweets."
-    return 0
+    result = 0
+    tweets = [t['text'] for t in timeline]
+    for hashtag in HASHTAGS:
+        # Check the profile
+        result += 1 if hashtag in profile['name'] else 0
+        result += 1 if hashtag in profile['description'] else 0
+        # Check the tweets themselves
+        for tweet in tweets:
+            result += 1 if hashtag in tweet else 0
+
+    if result > 0:
+        logging.info(
+            '{} scored {} for hashtags'.format(profile['screen_name'], result))
+    return result
