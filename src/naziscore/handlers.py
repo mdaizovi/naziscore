@@ -90,10 +90,10 @@ class ScoreHandler(webapp2.RequestHandler):
         score = Score.query(Score.profile_id == profile_id).get()
         if score is None:
             try:
-                taskqueue.add(
-                    url='/v1/worker/calculate',
+                taskqueue.Task(
                     name=profile_id,
-                    params={'profile_id': profile_id})
+                    params={'profile_id': profile_id}).add(
+                        'scoring')
             except taskqueue.TaskAlreadyExistsError:
                 # We already are going to check this person. There is nothing
                 # to do here.

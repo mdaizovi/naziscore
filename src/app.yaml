@@ -7,7 +7,7 @@ builtins:
 
 handlers:
 
-- url: /v1/worker/.*
+- url: /_ah/queue/.*
   script: naziscore.worker.app
   login: admin
 
