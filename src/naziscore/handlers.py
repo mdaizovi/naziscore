@@ -108,7 +108,7 @@ class ScoreHandler(webapp2.RequestHandler):
             obj = {'profile_id': score.profile_id,
                    'last_updated': score.last_updated.isoformat(),
                    'score': score.score}
-        self.response.out.write(unicode(json.dumps(obj), encoding='utf-8'))
+        self.response.out.write(json.dumps(obj, encoding='utf-8'))
 
 
 class CalculationHandler(webapp2.RequestHandler):
