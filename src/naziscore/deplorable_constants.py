@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
 
-HASHTAGS = ['#MAGA', '#altright']
+HASHTAGS = ['#maga', '#altright']
+
+TRIGGERS = ['libtard', 'cuck', 'goy']
 
 PEPES = u"🐸🥛👌"
 

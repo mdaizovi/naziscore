@@ -7,7 +7,8 @@ from inspect import isfunction
 
 from naziscore.deplorable_constants import (
     PEPES,
-    HASHTAGS
+    HASHTAGS,
+    TRIGGERS
 )
 
 
@@ -53,23 +54,38 @@ def points_from_pepes(profile, timeline):
 
     if result > 0:
         logging.info(
-            '{} scored {} for gab.ai'.format(profile['screen_name'], result))
+            '{} scored {} for pepes'.format(profile['screen_name'], result))
     return result
 
 
-def points_from_magas(profile, timeline):
-    "Returns the number of trigger hasthags in the profile and tweets."
+def trigger_count(triggers, profile, timeline):
+    """Counts the number of times a trigger from triggers appears in the
+    profile or timeline."""
     result = 0
     tweets = [t['text'] for t in timeline]
-    for hashtag in HASHTAGS:
+    for trigger in triggers:
         # Check the profile
-        result += 1 if hashtag in profile['name'] else 0
-        result += 1 if hashtag in profile['description'] else 0
+        result += 1 if trigger in profile['name'].lower() else 0
+        result += 1 if trigger in profile['description'].lower() else 0
         # Check the tweets themselves
         for tweet in tweets:
-            result += 1 if hashtag in tweet else 0
+            result += 1 if trigger in tweet else 0
+    return result
 
+
+def points_from_hashtags(profile, timeline):
+    "Returns the number of trigger hasthags in the profile and tweets."
+    result = trigger_count(HASHTAGS, profile, timeline)
     if result > 0:
         logging.info(
             '{} scored {} for hashtags'.format(profile['screen_name'], result))
+    return result
+
+
+def points_from_triggers(profile, timeline):
+    "Returns the number of trigger hasthags in the profile and tweets."
+    result = trigger_count(TRIGGERS, profile, timeline)
+    if result > 0:
+        logging.info(
+            '{} scored {} for triggers'.format(profile['screen_name'], result))
     return result
