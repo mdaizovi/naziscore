@@ -17,6 +17,9 @@ def calculated_score(profile_json, posts_json):
     total = 0
     profile = json.loads(profile_json)
     timeline = json.loads(posts_json)
+    if 'error' in timeline and timeline['error'] == 'Not authorized.':
+        logging.warning('{} is private'.format(profile['screen_name']))
+        timeline = []  # There are no tweets to check, user is private
     for grader in [
             g[f] for f in g
             if isfunction(g[f]) and f.startswith('points_from')]:

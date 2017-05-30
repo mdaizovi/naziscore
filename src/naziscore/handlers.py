@@ -55,6 +55,8 @@ def authenticated_get(
         headers={'Authorization': 'Bearer ' + token})
     if response.status_code == urlfetch.httplib.OK:
         return response.content
+    elif response.status_code == urlfetch.httplib.UNAUTHORIZED:
+        return response.content  # User is probably suspended
     else:
         message = 'Url ' + url + ' returned ' + response.content
         logging.warning(message)
@@ -100,6 +102,7 @@ class ScoreHandler(webapp2.RequestHandler):
                 pass
             except taskqueue.TombstonedTaskError:
                 # This task is too recent. We shouldn't try again so soon.
+                logging.warning('Fetch for {} tombstoned'.format(profile_id))
                 pass
 
             obj = {'profile_id': profile_id,
@@ -127,7 +130,13 @@ class CalculationHandler(webapp2.RequestHandler):
                 try:
                     profile = get_profile(profile_id)
                 except urlfetch.httplib.HTTPException as e:
-                    if 'User has been suspended' in e.message:
+                    if 'User has been suspended.' in e.message:
+                        logging.warning('{} has been suspended'.format(
+                            profile_id))
+                        profile = None
+                    elif 'User not found.' in e.message:
+                        logging.warning('{} does not exist'.format(
+                            profile_id))
                         profile = None
                     else:
                         raise
