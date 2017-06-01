@@ -62,7 +62,7 @@ def trigger_count(triggers, profile, timeline):
     """Counts the number of times a trigger from triggers appears in the
     profile or timeline."""
     result = 0
-    tweets = [t['text'] for t in timeline]
+    tweets = [t['text'] for t in timeline]  # Could use ['status']['text'].
     for trigger in triggers:
         # Check the profile
         result += 1 if trigger in profile['name'].lower() else 0
@@ -75,6 +75,7 @@ def trigger_count(triggers, profile, timeline):
 
 def points_from_hashtags(profile, timeline):
     "Returns the number of trigger hasthags in the profile and tweets."
+    # Hashtags also appear under ['status']['entities']['hashtags']
     result = trigger_count(HASHTAGS, profile, timeline)
     if result > 0:
         logging.info(
