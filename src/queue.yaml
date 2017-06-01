@@ -1,0 +1,8 @@
+queue:
+- name: scoring
+  rate: 1/s
+  max_concurrent_requests: 5
+  retry_parameters:
+    min_backoff_seconds: 60
+    max_backoff_seconds: 7200
+    max_doublings: 4
