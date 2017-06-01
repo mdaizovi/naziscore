@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import datetime
 import json
 import logging
 
@@ -89,4 +90,34 @@ def points_from_triggers(profile, timeline):
     if result > 0:
         logging.info(
             '{} scored {} for triggers'.format(profile['screen_name'], result))
+    return result
+
+
+def points_from_low_follower(profile, timeline):
+    "Returns 1 if the account has fewer than 11 followes, 3 if it has none."
+    if profile['followers_count'] == 0:
+        result = 3
+    elif profile['followers_count'] < 11:
+        result = 1
+    else:
+        result = 0
+    if result > 0:
+        logging.info(
+            '{} scored {} for low folower count'.format(
+                profile['screen_name'], result))
+    return result
+
+
+def points_from_new_account(profile, timeline):
+    "Returns 1 if the profile is less than 30 days old."
+    age = (datetime.datetime.now() - datetime.datetime.strptime(
+        profile['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
+    if age < 30:
+        result = 1
+    else:
+        result = 0
+    if result > 0:
+        logging.info(
+            '{} scored {} for low folower count'.format(
+                profile['screen_name'], result))
     return result
