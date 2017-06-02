@@ -1,6 +1,19 @@
 # -*- coding:utf-8 -*-
 
-HASHTAGS = ['#maga', '#altright', '#whitegenocide']
+HASHTAGS = [
+    '#altright',
+    '#auspol',
+    '#banislam',
+    '#banquran',
+    '#banrefugees',
+    '#culturalmarxism',
+    '#dingotwitter',
+    '#maga',
+    '#regressiveleft',
+    '#waronwhites'
+    '#whitegenocide',
+    '#whiteguilt',
+]
 
 TRIGGERS = ['libtard', 'cuck', 'goy', 'white genocide', 'shitlord']
 
