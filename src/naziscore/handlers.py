@@ -87,6 +87,7 @@ class ScoreHandler(webapp2.RequestHandler):
     def get(self, profile_id):
 
         self.response.headers['Content-Type'] = 'application/json'
+        profile_id = profile_id.lower()
         # TODO: retrieve the score from memcache before trying the
         # datastore. If not found, schedule a calculation.
         score = Score.query(Score.profile_id == profile_id).get()
@@ -124,6 +125,7 @@ class CalculationHandler(webapp2.RequestHandler):
         # results.
         profile_id = self.request.get('profile_id')
         if profile_id is not None:
+            profile_id = profile_id.lower()
             score = Score.query(Score.profile_id == profile_id).get()
             if score is None or score.last_updated < (
                     datetime.datetime.now() - datetime.timedelta(days=7)):
