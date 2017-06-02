@@ -41,24 +41,6 @@ def points_from_gabai(profile, timeline):
     return result
 
 
-def points_from_pepes(profile, timeline):
-    "Returns the number of different racist symbols in the name and tweets."
-    result = 0
-    # Check the profile
-    tweets = [t['text'] for t in timeline]
-    for pepe in PEPES:  # Pepe, milk and OK
-        result += 1 if pepe in profile['name'] else 0
-        result += 1 if pepe in profile['description'] else 0
-        # Check the tweets themselves
-        for tweet in tweets:
-            result += 1 if pepe in tweet else 0
-
-    if result > 0:
-        logging.info(
-            '{} scored {} for pepes'.format(profile['screen_name'], result))
-    return result
-
-
 def trigger_count(triggers, profile, timeline):
     """Counts the number of times a trigger from triggers appears in the
     profile or timeline."""
@@ -70,7 +52,16 @@ def trigger_count(triggers, profile, timeline):
         result += 1 if trigger in profile['description'].lower() else 0
         # Check the tweets themselves
         for tweet in tweets:
-            result += 1 if trigger in tweet else 0
+            result += 1 if trigger in tweet.lower() else 0
+    return result
+
+
+def points_from_pepes(profile, timeline):
+    "Returns the number of different racist symbols in the name and tweets."
+    result = trigger_count(PEPES, profile, timeline)
+    if result > 0:
+        logging.info(
+            '{} scored {} for pepes'.format(profile['screen_name'], result))
     return result
 
 
