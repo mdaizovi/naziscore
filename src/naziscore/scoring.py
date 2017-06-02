@@ -48,6 +48,7 @@ def trigger_count(triggers, profile, timeline):
     tweets = [t['text'] for t in timeline]  # Could use ['status']['text'].
     for trigger in triggers:
         # Check the profile
+        result += 1 if trigger in profile['screen_name'].lower() else 0
         result += 1 if trigger in profile['name'].lower() else 0
         result += 1 if trigger in profile['description'].lower() else 0
         # Check the tweets themselves
