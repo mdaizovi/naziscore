@@ -3,14 +3,64 @@
 import datetime
 import json
 import logging
+import os
 
 from inspect import isfunction
+
+from google.appengine.api import taskqueue
+from naziscore.models import Score
 
 from naziscore.deplorable_constants import (
     PEPES,
     HASHTAGS,
     TRIGGERS
 )
+
+
+def get_score_by_screen_name(screen_name):
+    score = Score.query(Score.screen_name == screen_name).get()
+    if score is None:
+        try:
+            taskqueue.Task(
+                name=('{}_{}'.format(
+                    screen_name,
+                    os.environ['CURRENT_VERSION_ID'].split('.')[0])),
+                params={'screen_name': screen_name}).add(
+                    'scoring')
+        except taskqueue.TaskAlreadyExistsError:
+            # We already are going to check this person. There is nothing
+            # to do here.
+            pass
+        except taskqueue.TombstonedTaskError:
+            # This task is too recent. We shouldn't try again so soon.
+            logging.warning('Fetch for {} tombstoned'.format(screen_name))
+            pass
+        return None
+    else:
+        return score
+
+
+def get_score_by_twitter_id(twitter_id):
+    score = Score.query(Score.twitter_id == twitter_id).get()
+    if score is None:
+        try:
+            taskqueue.Task(
+                name=('{}_{}'.format(
+                    twitter_id,
+                    os.environ['CURRENT_VERSION_ID'].split('.')[0])),
+                params={'twitter_id': twitter_id}).add(
+                    'scoring')
+        except taskqueue.TaskAlreadyExistsError:
+            # We already are going to check this person. There is nothing
+            # to do here.
+            pass
+        except taskqueue.TombstonedTaskError:
+            # This task is too recent. We shouldn't try again so soon.
+            logging.warning('Fetch for {} tombstoned'.format(twitter_id))
+            pass
+        return None
+    else:
+        return score
 
 
 def calculated_score(profile_json, posts_json):

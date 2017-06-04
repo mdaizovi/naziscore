@@ -8,7 +8,6 @@ import urllib
 import webapp2
 
 from google.appengine.api import memcache
-from google.appengine.api import taskqueue
 from google.appengine.api import urlfetch
 
 from naziscore.credentials import (
@@ -16,7 +15,11 @@ from naziscore.credentials import (
     CUSTOMER_SECRET
 )
 from naziscore.models import Score
-from naziscore.scoring import calculated_score
+from naziscore.scoring import (
+    calculated_score,
+    get_score_by_screen_name,
+    get_score_by_twitter_id,
+)
 
 
 def get_access_token(force=False):
@@ -63,53 +66,93 @@ def authenticated_get(
         raise urlfetch.httplib.HTTPException(message)
 
 
-def get_profile(profile_id):
+def get_profile(screen_name='', twitter_id=''):
+    if screen_name != '':
+        profile = get_profile_by_screen_name(screen_name)
+    elif twitter_id != '':
+        profile = get_profile_by_twitter_id(twitter_id)
+    return profile
+
+
+def get_profile_by_screen_name(screen_name):
     """Returns a dict from the Twitter GET users/show API.
 
     See https://dev.twitter.com/rest/reference/get/users/show"""
     return authenticated_get(
         'https://api.twitter.com/1.1/users/show.json?screen_name={}'.format(
-            profile_id))
+            screen_name))
 
 
-def get_timeline(profile_id):
+def get_profile_by_twitter_id(twitter_id):
+    """Returns a dict from the Twitter GET users/show API.
+
+    See https://dev.twitter.com/rest/reference/get/users/show"""
+    return authenticated_get(
+        'https://api.twitter.com/1.1/users/show.json?id={}'.format(
+            twitter_id))
+
+
+def get_timeline(screen_name='', twitter_id=''):
+    if screen_name != '':
+        timeline = get_timeline_by_screen_name(screen_name)
+    elif twitter_id != '':
+        timeline = get_timeline_by_twitter_id(twitter_id)
+    return timeline
+
+
+def get_timeline_by_screen_name(screen_name):
     """Returns a dict from the Twitter GET statuses/user_timeline API.
 
     See https://dev.twitter.com/rest/reference/get/statuses/user_timeline"""
     return authenticated_get(
         'https://api.twitter.com/1.1/statuses/user_timeline.json?'
         'screen_name={}'.format(
-            profile_id))
+            screen_name))
 
 
-class ScoreHandler(webapp2.RequestHandler):
+def get_timeline_by_twitter_id(twitter_id):
+    """Returns a dict from the Twitter GET statuses/user_timeline API.
 
-    def get(self, profile_id):
+    See https://dev.twitter.com/rest/reference/get/statuses/user_timeline"""
+    return authenticated_get(
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?'
+        'id={}'.format(
+            twitter_id))
+
+
+class ScoreByNameHandler(webapp2.RequestHandler):
+
+    def get(self, screen_name):
 
         self.response.headers['Content-Type'] = 'application/json'
-        profile_id = profile_id.lower()
+        screen_name = screen_name.lower()
         # TODO: retrieve the score from memcache before trying the
         # datastore. If not found, schedule a calculation.
-        score = Score.query(Score.profile_id == profile_id).get()
+        score = get_score_by_screen_name(screen_name)
         if score is None:
-            try:
-                taskqueue.Task(
-                    name=profile_id,
-                    params={'profile_id': profile_id}).add(
-                        'scoring')
-            except taskqueue.TaskAlreadyExistsError:
-                # We already are going to check this person. There is nothing
-                # to do here.
-                pass
-            except taskqueue.TombstonedTaskError:
-                # This task is too recent. We shouldn't try again so soon.
-                logging.warning('Fetch for {} tombstoned'.format(profile_id))
-                pass
-
-            obj = {'profile_id': profile_id,
+            obj = {'screen_name': screen_name,
                    'last_updated': None}
         else:
-            obj = {'profile_id': score.profile_id,
+            obj = {'screen_name': score.screen_name,
+                   'last_updated': score.last_updated.isoformat(),
+                   'score': score.score}
+        self.response.out.write(json.dumps(obj, encoding='utf-8'))
+
+
+class ScoreByIdHandler(webapp2.RequestHandler):
+
+    def get(self, twitter_id):
+        self.response.headers['Content-Type'] = 'application/json'
+        twitter_id = int(twitter_id)
+        # TODO: retrieve the score from memcache before trying the
+        # datastore. If not found, schedule a calculation.
+        score = get_score_by_twitter_id(twitter_id)
+        if score is None:
+            obj = {'twitter_id': twitter_id,
+                   'last_updated': None}
+        else:
+            obj = {'screen_name': score.screen_name,
+                   'twitter_id': score.twitter_id,
                    'last_updated': score.last_updated.isoformat(),
                    'score': score.score}
         self.response.out.write(json.dumps(obj, encoding='utf-8'))
@@ -123,32 +166,54 @@ class CalculationHandler(webapp2.RequestHandler):
         # TODO: Here we get the user's stream, profile and calculate their nazi
         # score aplying the criteria functions on the data and adding the
         # results.
-        profile_id = self.request.get('profile_id')
-        if profile_id is not None:
-            profile_id = profile_id.lower()
-            score = Score.query(Score.profile_id == profile_id).get()
-            if score is None or score.last_updated < (
-                    datetime.datetime.now() - datetime.timedelta(days=7)):
-                try:
-                    profile = get_profile(profile_id)
-                except urlfetch.httplib.HTTPException as e:
-                    if 'User has been suspended.' in e.message:
-                        logging.warning('{} has been suspended'.format(
-                            profile_id))
-                        profile = None
-                    elif 'User not found.' in e.message:
-                        logging.warning('{} does not exist'.format(
-                            profile_id))
-                        profile = None
-                    else:
-                        raise
-                if profile is not None:
-                    timeline = get_timeline(profile_id)
-                    if timeline is not None:
-                        Score(profile_id=profile_id,
-                              score=calculated_score(profile, timeline),
-                              profile_text=profile,
-                              timeline_text=timeline).put()
+        screen_name = self.request.get('screen_name')
+        twitter_id = self.request.get('twitter_id')
+        if screen_name != '':
+            screen_name = screen_name.lower()
+            score = get_score_by_screen_name(screen_name)
+        elif twitter_id != '':
+            twitter_id = int(twitter_id)
+            score = get_score_by_twitter_id(twitter_id)
+
+        if score is None or score.last_updated < (
+                datetime.datetime.now() - datetime.timedelta(days=7)):
+            # We'll need the profile and timeline data.
+            try:
+                profile = get_profile(screen_name, twitter_id)
+            except urlfetch.httplib.HTTPException as e:
+                profile = None
+                if 'User has been suspended.' in e.message:
+                    logging.warning('{} has been suspended'.format(
+                        screen_name if screen_name else twitter_id))
+                elif 'User not found.' in e.message:
+                    logging.warning('{} does not exist'.format(
+                        screen_name if screen_name else twitter_id))
+                else:
+                    raise  # Will retry later.
+            if profile is not None:
+                timeline = get_timeline(screen_name, twitter_id)
             else:
-                # We have a score. Nothing to do.
-                pass
+                timeline = None
+
+            if score is None and profile is not None:
+                # We need to add a new one, but only if we got something back.
+                if screen_name == '':
+                    screen_name = json.loads(profile)['screen_name']
+                elif twitter_id == '':
+                    twitter_id = json.loads(profile)['id']
+
+                Score(screen_name=screen_name,
+                      twitter_id=twitter_id,
+                      score=calculated_score(profile, timeline),
+                      profile_text=profile,
+                      timeline_text=timeline).put()
+
+            elif score is not None and score.last_updated < (
+                    datetime.datetime.now() - datetime.timedelta(days=7)):
+                # We need to either update or create a new one.
+                    if timeline is not None:
+                        score.score = calculated_score(profile, timeline)
+                        score.put()
+        else:
+            # We have an up-to-date score. Nothing to do.
+            pass
