@@ -10,12 +10,21 @@ HASHTAGS = [
     '#dingotwitter',
     '#maga',
     '#regressiveleft',
+    '#sethrich',
+    '#snowflakes',
     '#waronwhites'
     '#whitegenocide',
     '#whiteguilt',
 ]
 
-TRIGGERS = ['libtard', 'cuck', 'goy', 'white genocide', 'shitlord']
+TRIGGERS = [
+    'anti-snowflake'
+    'cuck',
+    'goy',
+    'libtard',
+    'shitlord',
+    'white genocide',
+]
 
 PEPES = u"🐸🥛👌"
 
@@ -35,6 +44,7 @@ FAKE_NEWS_WEBSITES = [
     "aanirfan.blogspot.co.uk",
     "abcnews.com.co",
     "abcnewsgo.co",
+    "thereligionofpeace.com",
     "abeldanger.net",
     "abovetopsecret.com",
     "abriluno.com",
