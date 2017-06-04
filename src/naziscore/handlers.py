@@ -169,12 +169,13 @@ class CalculationHandler(webapp2.RequestHandler):
         # results.
         screen_name = self.request.get('screen_name')
         twitter_id = self.request.get('twitter_id')
+        depth = int(self.request.get('depth'))
         if screen_name != '':
             screen_name = screen_name.lower()
-            score = get_score_by_screen_name(screen_name)
+            score = get_score_by_screen_name(screen_name, depth)
         elif twitter_id != '':
             twitter_id = int(twitter_id)
-            score = get_score_by_twitter_id(twitter_id)
+            score = get_score_by_twitter_id(twitter_id, depth)
 
         if score is None or score.last_updated < (
                 datetime.datetime.now() - datetime.timedelta(days=7)):
@@ -205,7 +206,7 @@ class CalculationHandler(webapp2.RequestHandler):
 
                 Score(screen_name=screen_name,
                       twitter_id=twitter_id,
-                      score=calculated_score(profile, timeline),
+                      score=calculated_score(profile, timeline, depth),
                       profile_text=profile,
                       timeline_text=timeline).put()
 
@@ -213,7 +214,8 @@ class CalculationHandler(webapp2.RequestHandler):
                     datetime.datetime.now() - datetime.timedelta(days=7)):
                 # We need to either update or create a new one.
                     if timeline is not None:
-                        score.score = calculated_score(profile, timeline)
+                        score.score = calculated_score(
+                            profile, timeline, depth)
                         score.put()
         else:
             # We have an up-to-date score. Nothing to do.
