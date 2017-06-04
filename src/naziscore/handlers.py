@@ -134,6 +134,7 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                    'last_updated': None}
         else:
             obj = {'screen_name': score.screen_name,
+                   'twitter_id': score.twitter_id,
                    'last_updated': score.last_updated.isoformat(),
                    'score': score.score}
         self.response.out.write(json.dumps(obj, encoding='utf-8'))
