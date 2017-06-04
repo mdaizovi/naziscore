@@ -172,6 +172,12 @@ def points_from_external_links(profile, timeline, depth):
     return 0
 
 
+def points_from_people_followed(profile, timeline, depth):
+    "Returns the average score from accounts followed whose score is >2."
+    # TODO: this will require capture a follow list.
+    return 0
+
+
 def points_from_low_follower(profile, timeline, depth):
     "Returns 1 if the account has fewer than 11 followes, 3 if it has none."
     if profile['followers_count'] == 0:
