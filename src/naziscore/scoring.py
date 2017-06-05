@@ -17,7 +17,7 @@ from naziscore.deplorable_constants import (
 )
 
 
-def get_score_by_screen_name(screen_name, depth=0):
+def get_score_by_screen_name(screen_name, depth):
     score = Score.query(Score.screen_name == screen_name).get()
     if score is None:
         try:
@@ -43,7 +43,7 @@ def get_score_by_screen_name(screen_name, depth=0):
         return score
 
 
-def get_score_by_twitter_id(twitter_id, depth=0):
+def get_score_by_twitter_id(twitter_id, depth):
     score = Score.query(Score.twitter_id == twitter_id).get()
     if score is None:
         try:
