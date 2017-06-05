@@ -33,11 +33,11 @@ def get_score_by_screen_name(screen_name, depth):
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
-            pass
+            logging.warning(
+                'Fetch for {} already scheduled'.format(screen_name))
         except taskqueue.TombstonedTaskError:
             # This task is too recent. We shouldn't try again so soon.
             logging.warning('Fetch for {} tombstoned'.format(screen_name))
-            pass
         return None
     else:
         return score
@@ -144,16 +144,15 @@ def points_from_triggers(profile, timeline, depth):
 def points_from_retweets(profile, timeline, depth):
     "Returns a fraction of the score of each retweeted author."
     if depth > 1:
-        logging.info(
+        logging.warning(  # TODO: This should be info when in production.
             '{} exceeded max depth at {}'.format(
                 profile['screen_name'], depth))
         return 0
     else:
-        if depth > 1:
-            logging.info(
-                'Recursively looking into {} at depth {}'.format(
-                    profile['screen_name'], depth))
         result = 0
+        logging.info(
+            'Recursively looking into {} at depth {}'.format(
+                profile['screen_name'], depth))
         authors = [
             t['retweeted_status']['user']['screen_name']
             for t in timeline if 'retweeted_status' in t]
