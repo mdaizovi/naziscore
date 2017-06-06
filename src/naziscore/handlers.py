@@ -148,20 +148,23 @@ class ScoreByIdHandler(webapp2.RequestHandler):
     def get(self, twitter_id):
         self.response.headers['Content-Type'] = 'application/json'
         twitter_id = int(twitter_id)
-        result = memcache.get('twitter_id:' + screen_name)
+        result = memcache.get('twitter_id:{}'.format(twitter_id))
         if result is None:
+            # We don't have a cached result.
             score = get_score_by_twitter_id(twitter_id, depth=0)
             if score is None:
+                # We don't have a precalculated score.
                 result = json.dumps(
-                    {'screen_name': screen_name,
-                       'last_updated': None}, encoding='utf-8')
+                    {'twitter_id': twitter_id,
+                     'last_updated': None}, encoding='utf-8')
             else:
+                # We have a score in the datastore.
                 result = json.dumps(
                     {'screen_name': score.screen_name,
-                       'twitter_id': score.twitter_id,
-                       'last_updated': score.last_updated.isoformat(),
-                   'score': score.score}, encoding='utf-8')
-                memcache.set('twitter_id:' + twitter_id, result, 3600)
+                     'twitter_id': score.twitter_id,
+                     'last_updated': score.last_updated.isoformat(),
+                     'score': score.score}, encoding='utf-8')
+                memcache.set('twitter_id:{}'.format(twitter_id), result, 3600)
         self.response.out.write(result)
 
 
