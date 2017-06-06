@@ -123,17 +123,19 @@ def get_timeline_by_twitter_id(twitter_id):
 class ScoreByNameHandler(webapp2.RequestHandler):
 
     def get(self, screen_name):
-
         self.response.headers['Content-Type'] = 'application/json'
         screen_name = screen_name.lower()
         result = memcache.get('screen_name:' + screen_name)
         if result is None:
+            # We don't have a cached result.
             score = get_score_by_screen_name(screen_name, depth=0)
             if score is None:
+                # We don't have a precalculated score.
                 result = json.dumps(
                     {'screen_name': screen_name,
                        'last_updated': None}, encoding='utf-8')
             else:
+                # We have a score in the datastore.
                 result = json.dumps(
                     {'screen_name': score.screen_name,
                        'twitter_id': score.twitter_id,
@@ -203,6 +205,7 @@ class CalculationHandler(webapp2.RequestHandler):
                     raise  # Will retry later.
             if profile is not None:
                 timeline = get_timeline(screen_name, twitter_id)
+
             else:
                 timeline = None
 
