@@ -173,8 +173,15 @@ def points_from_external_links(profile, timeline, depth):
 
 def points_from_people_followed(profile, timeline, depth):
     "Returns the average score from accounts followed whose score is >2."
-    # TODO: this will require capture a follow list.
+    # TODO: this will require subsampling a friends list.
+    # See https://dev.twitter.com/rest/reference/get/friends/list
     return 0
+    
+    
+def points_from_favorites(profile, timeline, depth):
+    "Returns trigger counts for the user's favorited posts"
+    # TODO: will need to subsample favorites list
+    # See https://dev.twitter.com/rest/reference/get/favorites/list
 
 
 def points_from_low_follower(profile, timeline, depth):
