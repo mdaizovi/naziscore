@@ -30,6 +30,7 @@ PEPES = u"🐸🥛👌"
 
 # List collected from
 # https://docs.google.com/spreadsheets/d/1o3FFiCB_W2sCLH7g6iPwzC9lmfIj7ojlA-htvQCJhaw/edit#gid=0
+# with some additions.
 
 FAKE_NEWS_WEBSITES = [
     "100percentfedup.com",
@@ -40,6 +41,7 @@ FAKE_NEWS_WEBSITES = [
     "365usanews.com",
     "4threvolutionarywar.wordpress.com",
     "70news.wordpress.com",
+    "altright.com",
     "82.221.129.208",
     "aanirfan.blogspot.co.uk",
     "abcnews.com.co",
