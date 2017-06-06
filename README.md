@@ -24,4 +24,6 @@ user. Points are given according to the criteria listed below:
 - Profile less than two months old
 - Has a frog emoji in the name
 - Has a gab.ai URL
-- Used terms like "libtard" in recent tweets
+- Used terms like "libtard" in recent tweets/retweets, description, name or screen-name.
+- Retweets other scored accounts
+- Likes offensive tweets
