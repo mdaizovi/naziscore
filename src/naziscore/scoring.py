@@ -182,6 +182,7 @@ def points_from_favorites(profile, timeline, depth):
     "Returns trigger counts for the user's favorited posts"
     # TODO: will need to subsample favorites list
     # See https://dev.twitter.com/rest/reference/get/favorites/list
+    return 0
 
 
 def points_from_low_follower(profile, timeline, depth):
