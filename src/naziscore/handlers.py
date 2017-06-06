@@ -105,7 +105,7 @@ def get_timeline_by_screen_name(screen_name):
 
     See https://dev.twitter.com/rest/reference/get/statuses/user_timeline"""
     return authenticated_get(
-        'https://api.twitter.com/1.1/statuses/user_timeline.json?'
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?count=100&'
         'screen_name={}'.format(
             screen_name))
 
@@ -115,7 +115,7 @@ def get_timeline_by_twitter_id(twitter_id):
 
     See https://dev.twitter.com/rest/reference/get/statuses/user_timeline"""
     return authenticated_get(
-        'https://api.twitter.com/1.1/statuses/user_timeline.json?'
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?count=100&'
         'id={}'.format(
             twitter_id))
 
