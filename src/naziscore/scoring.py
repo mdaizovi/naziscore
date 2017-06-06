@@ -189,8 +189,8 @@ def points_from_people_followed(profile, timeline, depth):
     # TODO: this will require subsampling a friends list.
     # See https://dev.twitter.com/rest/reference/get/friends/list
     return 0
-    
-    
+
+
 def points_from_favorites(profile, timeline, depth):
     "Returns trigger counts for the user's favorited posts"
     # TODO: will need to subsample favorites list
