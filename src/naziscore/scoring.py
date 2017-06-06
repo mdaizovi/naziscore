@@ -11,9 +11,10 @@ from google.appengine.api import taskqueue
 from naziscore.models import Score
 
 from naziscore.deplorable_constants import (
-    PEPES,
+    FAKE_NEWS_WEBSITES,
     HASHTAGS,
-    TRIGGERS
+    PEPES,
+    TRIGGERS,
 )
 
 
