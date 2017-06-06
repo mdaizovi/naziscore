@@ -18,8 +18,7 @@ store in the datastore (as a queued task).
 The application gives a score based on the Twitter profile of the
 user. Points are given according to the criteria listed below:
 
-- #MAGA, #WhiteGenocide and similar hashtags in the profile
-- #MAGA, #WhiteGenocide and similar hashtags in recent tweets
+- #MAGA, #WhiteGenocide and similar hashtags in the profile or recent tweets
 - Less than 10 followers
 - Profile less than two months old
 - Has a frog emoji in the name
