@@ -10,24 +10,28 @@ HASHTAGS = [
     '#culturalmarxism',
     '#dingotwitter',
     '#maga',
+    '#prowhite',
     '#regressiveleft',
     '#sethrich',
     '#snowflakes',
     '#waronwhites'
+    '#whitebeauty',
     '#whitegenocide',
     '#whiteguilt',
 ]
 
 TRIGGERS = [
     'anti-snowflake'
+    'anti-white'
     'cuck',
     'goy',
     'libtard',
     'shitlord',
+    'the white race',
     'white genocide',
 ]
 
-PEPES = u"🐸🥛👌"
+PEPES = u"🐸🥛👌✠"
 
 # List collected from
 # https://docs.google.com/spreadsheets/d/1o3FFiCB_W2sCLH7g6iPwzC9lmfIj7ojlA-htvQCJhaw/edit#gid=0
