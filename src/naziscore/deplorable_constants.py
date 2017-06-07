@@ -6,6 +6,7 @@ HASHTAGS = [
     '#banislam',
     '#banquran',
     '#banrefugees',
+    '#cnnisisis',
     '#culturalmarxism',
     '#dingotwitter',
     '#maga',
