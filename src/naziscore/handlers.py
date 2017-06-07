@@ -216,7 +216,7 @@ class CalculationHandler(webapp2.RequestHandler):
                 elif twitter_id == '':
                     twitter_id = json.loads(profile)['id']
 
-                Score(screen_name=screen_name,
+                Score(screen_name=screen_name.lower(),
                       twitter_id=twitter_id,
                       score=calculated_score(profile, timeline, depth),
                       profile_text=profile,
