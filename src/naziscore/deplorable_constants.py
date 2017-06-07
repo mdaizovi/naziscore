@@ -10,6 +10,7 @@ HASHTAGS = [
     '#culturalmarxism',
     '#dingotwitter',
     '#maga',
+    '#makeamericagreatagain',
     '#prowhite',
     '#regressiveleft',
     '#sethrich',
