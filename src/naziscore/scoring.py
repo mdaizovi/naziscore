@@ -168,7 +168,7 @@ def points_from_retweets(profile, timeline, depth):
 
 
 def points_from_external_links(profile, timeline, depth):
-    "Returns 0.125 point for each link from the fake news sources."
+    "Returns 0.03125 point for each link from the fake news sources."
     result = 0
     lists = [s for s in
              [t['retweeted_status']['entities']['urls']for t in
@@ -177,7 +177,7 @@ def points_from_external_links(profile, timeline, depth):
     for l in lists:
         for u in l:
             for fnw in FAKE_NEWS_WEBSITES:
-                result += .125 if fnw in u['expanded_url'] else 0
+                result += 0.03125 if fnw in u['expanded_url'] else 0
     if result > 0:
         logging.info(
             '{} scored {} for fake news'.format(
