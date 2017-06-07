@@ -1,8 +1,8 @@
 queue:
 - name: scoring
   rate: 1/s
-  bucket_size: 5
-  max_concurrent_requests: 2
+  bucket_size: 60
+  max_concurrent_requests: 10
   retry_parameters:
     min_backoff_seconds: 60
     max_backoff_seconds: 7200
