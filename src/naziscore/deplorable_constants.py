@@ -2,12 +2,14 @@
 
 HASHTAGS = [
     '#altright',
+    '#antiwhite',
     '#auspol',
     '#banislam',
     '#banquran',
     '#banrefugees',
     '#cnnisisis',
     '#culturalmarxism',
+    '#defendeuropa',
     '#dingotwitter',
     '#maga',
     '#makeamericagreatagain',
