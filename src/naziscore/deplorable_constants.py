@@ -11,16 +11,27 @@ HASHTAGS = [
     '#culturalmarxism',
     '#defendeuropa',
     '#dingotwitter',
+    '#jewishsupremacism',
     '#maga',
     '#makeamericagreatagain',
+    '#mawa',
+    '#nowhiteguilt',
     '#prowhite',
+    '#prowhite',
+    '#racemixingstinks',
     '#regressiveleft',
     '#sethrich',
     '#snowflakes',
+    '#stoptheinvasion',
     '#waronwhites'
     '#whitebeauty',
     '#whitegenocide',
     '#whiteguilt',
+    '#whitehistory',
+    '#whitehope',
+    '#whitelivesmatter',
+    '#whitemanfight',
+    '#whitepride',
 ]
 
 TRIGGERS = [
