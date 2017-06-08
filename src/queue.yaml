@@ -1,6 +1,7 @@
 queue:
+
 - name: scoring
-  rate: 1/s
+  rate: 60/m
   bucket_size: 60
   max_concurrent_requests: 10
   retry_parameters:
@@ -8,7 +9,25 @@ queue:
     max_backoff_seconds: 7200
     max_doublings: 4
 
-- name: lowtps
+- name: scoring-direct
+  rate: 60/m
+  bucket_size: 60
+  max_concurrent_requests: 10
+  retry_parameters:
+    min_backoff_seconds: 60
+    max_backoff_seconds: 7200
+    max_doublings: 4
+
+- name: scoring-indirect
+  rate: 30/m
+  bucket_size: 60
+  max_concurrent_requests: 10
+  retry_parameters:
+    min_backoff_seconds: 60
+    max_backoff_seconds: 7200
+    max_doublings: 4
+
+- name: low-tps
   rate: 1/m
   bucket_size: 10
   max_concurrent_requests: 1

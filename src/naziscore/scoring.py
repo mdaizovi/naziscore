@@ -30,7 +30,7 @@ def get_score_by_screen_name(screen_name, depth):
                     'screen_name': screen_name,
                     'depth': depth
                 }).add(
-                    'scoring')
+                    'scoring-direct' if depth == 0 else 'scoring-indirect')
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
@@ -56,7 +56,7 @@ def get_score_by_twitter_id(twitter_id, depth):
                     'twitter_id': twitter_id,
                     'depth': depth
                 }).add(
-                    'scoring')
+                    'scoring-direct' if depth == 0 else 'scoring-indirect')
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
