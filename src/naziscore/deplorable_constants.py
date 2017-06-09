@@ -38,8 +38,16 @@ TRIGGERS = [
     'anti-snowflake'
     'anti-white'
     'cuck',
+    'declinist',
+    'defoo',
+    'dildocracy',
+    'dindu nuffin',
+    'fash ',
     'goy',
+    'huhwhite',
     'libtard',
+    'niggertech',
+    'ovenworthy',
     'shitlord',
     'the white race',
     'white genocide',
