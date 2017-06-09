@@ -24,14 +24,14 @@ def get_score_by_screen_name(screen_name, depth):
     score = yield Score.query(Score.screen_name == screen_name).get_async()
     if score is None:
         try:
-            taskqueue.Task(
+            yield taskqueue.Task(
                 name=('{}_{}'.format(
                     screen_name,
                     os.environ['CURRENT_VERSION_ID'].split('.')[0])),
                 params={
                     'screen_name': screen_name,
                     'depth': depth
-                }).add(
+                }).add_async(
                     'scoring-direct' if depth == 0 else 'scoring-indirect')
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
@@ -51,14 +51,14 @@ def get_score_by_twitter_id(twitter_id, depth):
     score = yield Score.query(Score.twitter_id == twitter_id).get_async()
     if score is None:
         try:
-            taskqueue.Task(
+            yield taskqueue.Task(
                 name=('{}_{}'.format(
                     twitter_id,
                     os.environ['CURRENT_VERSION_ID'].split('.')[0])),
                 params={
                     'twitter_id': twitter_id,
                     'depth': depth
-                }).add(
+                }).add_async(
                     'scoring-direct' if depth == 0 else 'scoring-indirect')
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
