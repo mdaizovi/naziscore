@@ -6,6 +6,7 @@ import logging
 import os
 
 from inspect import isfunction
+from google.appengine.ext import ndb
 
 from google.appengine.api import taskqueue
 from naziscore.models import Score
@@ -18,8 +19,9 @@ from naziscore.deplorable_constants import (
 )
 
 
+@ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
-    score = Score.query(Score.screen_name == screen_name).get()
+    score = yield Score.query(Score.screen_name == screen_name).get_async()
     if score is None:
         try:
             taskqueue.Task(
@@ -39,13 +41,14 @@ def get_score_by_screen_name(screen_name, depth):
         except taskqueue.TombstonedTaskError:
             # This task is too recent. We shouldn't try again so soon.
             logging.warning('Fetch for {} tombstoned'.format(screen_name))
-        return None
+        raise ndb.Return(None)
     else:
-        return score
+        raise ndb.Return(score)
 
 
+@ndb.tasklet
 def get_score_by_twitter_id(twitter_id, depth):
-    score = Score.query(Score.twitter_id == twitter_id).get()
+    score = yield Score.query(Score.twitter_id == twitter_id).get_async()
     if score is None:
         try:
             taskqueue.Task(
@@ -65,9 +68,9 @@ def get_score_by_twitter_id(twitter_id, depth):
             # This task is too recent. We shouldn't try again so soon.
             logging.warning('Fetch for {} tombstoned'.format(twitter_id))
             pass
-        return None
+        raise ndb.Return(None)
     else:
-        return score
+        raise ndb.Return(score)
 
 
 def calculated_score(profile_json, posts_json, depth):
@@ -158,7 +161,8 @@ def points_from_retweets(profile, timeline, depth):
             t['retweeted_status']['user']['screen_name']
             for t in timeline if 'retweeted_status' in t]
         for screen_name in authors:
-            score = get_score_by_screen_name(screen_name, depth + 1)
+            score = get_score_by_screen_name(
+                screen_name, depth + 1).get_result()
             result += score.score * .125 if score is not None else 0
         if result > 0:
             logging.info(
