@@ -36,5 +36,5 @@ queue:
     max_backoff_seconds: 7200
 
 - name: operations
-  rate: 100/s
+  rate: 50/s
   bucket_size: 20
