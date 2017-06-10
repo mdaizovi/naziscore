@@ -77,6 +77,7 @@ def calculated_score(profile_json, posts_json, depth):
     """Returns the score for the recent posts JSON"""
     g = globals()
     total = 0
+    grades = {}
     profile = json.loads(profile_json)
     timeline = json.loads(posts_json)
     if 'error' in timeline and timeline['error'] == 'Not authorized.':
@@ -86,8 +87,10 @@ def calculated_score(profile_json, posts_json, depth):
             g[f] for f in g
             if isfunction(g[f]) and f.startswith('points_from')]:
         logging.info('Calling ' + grader.__repr__())
-        total += grader(profile, timeline, depth)
-    return total
+        grade = grader(profile, timeline, depth)
+        grades[grader.func_name] = grade
+        total += grade
+    return total, grades
 
 
 def points_from_gabai(profile, timeline, depth):
