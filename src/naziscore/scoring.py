@@ -150,7 +150,7 @@ def points_from_triggers(profile, timeline, depth):
 
 def points_from_retweets(profile, timeline, depth):
     "Returns a fraction of the score of each retweeted author."
-    if depth > 1:
+    if depth > 0:
         logging.warning(  # TODO: This should be info when in production.
             '{} exceeded max depth at {}'.format(
                 profile['screen_name'], depth))
