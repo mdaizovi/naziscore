@@ -21,7 +21,8 @@ from naziscore.deplorable_constants import (
 
 @ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
-    score = yield Score.query(Score.screen_name == screen_name).get_async()
+    score = yield Score.query(
+        Score.screen_name_lower == screen_name.lower()).get_async()
     if score is None:
         try:
             yield taskqueue.Task(

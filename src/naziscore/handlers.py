@@ -120,7 +120,7 @@ class CalculationHandler(webapp2.RequestHandler):
                 elif twitter_id == '':
                     twitter_id = json.loads(profile)['id']
                 score, grades = calculated_score(profile, timeline, depth)
-                Score(screen_name=screen_name.lower(),
+                Score(screen_name=screen_name,
                       twitter_id=twitter_id,
                       score=score,
                       grades=grades,
