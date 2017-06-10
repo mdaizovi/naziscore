@@ -12,7 +12,7 @@ class Score(ndb.Model):
     last_updated = ndb.DateTimeProperty(auto_now=True)
     score = ndb.FloatProperty()
     grade = ndb.ComputedProperty(
-        lambda self: sum([self.grades[k] for k in self.grades]))
+        lambda self: float(sum([self.grades[k] for k in self.grades])))
     grades = ndb.JsonProperty()
 
     profile_text = ndb.TextProperty()
