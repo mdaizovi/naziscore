@@ -87,7 +87,9 @@ def calculated_score(profile_json, posts_json, depth):
     for grader in [
             g[f] for f in g
             if isfunction(g[f]) and f.startswith('points_from')]:
-        logging.info('Calling ' + grader.__repr__())
+        logging.info(
+            'Calling {} for {}'.format(
+                grader.func_name, profile['screen_name']))
         grade = grader(profile, timeline, depth)
         grades[grader.func_name] = grade
         total += grade
