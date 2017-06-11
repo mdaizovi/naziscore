@@ -21,17 +21,18 @@ from naziscore.deplorable_constants import (
 
 @ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
-    score = yield Score.query(Score.screen_name == screen_name).get_async()
+    score = yield Score.query(
+        Score.screen_name_lower == screen_name.lower()).get_async()
     if score is None:
         try:
-            taskqueue.Task(
+            yield taskqueue.Task(
                 name=('{}_{}'.format(
                     screen_name,
                     os.environ['CURRENT_VERSION_ID'].split('.')[0])),
                 params={
                     'screen_name': screen_name,
                     'depth': depth
-                }).add(
+                }).add_async(
                     'scoring-direct' if depth == 0 else 'scoring-indirect')
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
@@ -51,14 +52,14 @@ def get_score_by_twitter_id(twitter_id, depth):
     score = yield Score.query(Score.twitter_id == twitter_id).get_async()
     if score is None:
         try:
-            taskqueue.Task(
+            yield taskqueue.Task(
                 name=('{}_{}'.format(
                     twitter_id,
                     os.environ['CURRENT_VERSION_ID'].split('.')[0])),
                 params={
                     'twitter_id': twitter_id,
                     'depth': depth
-                }).add(
+                }).add_async(
                     'scoring-direct' if depth == 0 else 'scoring-indirect')
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
@@ -76,7 +77,7 @@ def get_score_by_twitter_id(twitter_id, depth):
 def calculated_score(profile_json, posts_json, depth):
     """Returns the score for the recent posts JSON"""
     g = globals()
-    total = 0
+    grades = {}
     profile = json.loads(profile_json)
     timeline = json.loads(posts_json)
     if 'error' in timeline and timeline['error'] == 'Not authorized.':
@@ -85,9 +86,12 @@ def calculated_score(profile_json, posts_json, depth):
     for grader in [
             g[f] for f in g
             if isfunction(g[f]) and f.startswith('points_from')]:
-        logging.info('Calling ' + grader.__repr__())
-        total += grader(profile, timeline, depth)
-    return total
+        logging.info(
+            'Calling {} for {}'.format(
+                grader.func_name, profile['screen_name']))
+        grade = grader(profile, timeline, depth)
+        grades[grader.func_name] = grade
+    return grades
 
 
 def points_from_gabai(profile, timeline, depth):
@@ -147,7 +151,7 @@ def points_from_triggers(profile, timeline, depth):
 
 def points_from_retweets(profile, timeline, depth):
     "Returns a fraction of the score of each retweeted author."
-    if depth > 1:
+    if depth > 0:
         logging.warning(  # TODO: This should be info when in production.
             '{} exceeded max depth at {}'.format(
                 profile['screen_name'], depth))

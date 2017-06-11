@@ -119,10 +119,10 @@ class CalculationHandler(webapp2.RequestHandler):
                     screen_name = json.loads(profile)['screen_name']
                 elif twitter_id == '':
                     twitter_id = json.loads(profile)['id']
-
-                Score(screen_name=screen_name.lower(),
+                grades = calculated_score(profile, timeline, depth)
+                Score(screen_name=screen_name,
                       twitter_id=twitter_id,
-                      score=calculated_score(profile, timeline, depth),
+                      grades=grades,
                       profile_text=profile,
                       timeline_text=timeline).put()
 
@@ -130,8 +130,8 @@ class CalculationHandler(webapp2.RequestHandler):
                     datetime.datetime.now() - datetime.timedelta(days=7)):
                 # We need to either update or create a new one.
                     if timeline is not None:
-                        score.score = calculated_score(
-                            profile, timeline, depth)
+                        grades = calculated_score(profile, timeline, depth)
+                        score.grades = grades
                         score.put()
         else:
             # We have an up-to-date score. Nothing to do.
