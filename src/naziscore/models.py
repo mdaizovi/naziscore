@@ -10,8 +10,7 @@ class Score(ndb.Model):
         lambda self: self.screen_name.lower())
     twitter_id = ndb.IntegerProperty()
     last_updated = ndb.DateTimeProperty(auto_now=True)
-    score = ndb.FloatProperty()
-    grade = ndb.ComputedProperty(
+    score = ndb.ComputedProperty(
         lambda self: float(sum([self.grades[k] for k in self.grades])))
     grades = ndb.JsonProperty()
 

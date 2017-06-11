@@ -77,7 +77,6 @@ def get_score_by_twitter_id(twitter_id, depth):
 def calculated_score(profile_json, posts_json, depth):
     """Returns the score for the recent posts JSON"""
     g = globals()
-    total = 0
     grades = {}
     profile = json.loads(profile_json)
     timeline = json.loads(posts_json)
@@ -92,8 +91,7 @@ def calculated_score(profile_json, posts_json, depth):
                 grader.func_name, profile['screen_name']))
         grade = grader(profile, timeline, depth)
         grades[grader.func_name] = grade
-        total += grade
-    return total, grades
+    return grades
 
 
 def points_from_gabai(profile, timeline, depth):
