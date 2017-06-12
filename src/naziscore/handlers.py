@@ -76,7 +76,8 @@ class ScoreByIdHandler(webapp2.RequestHandler):
 
 class CalculationHandler(webapp2.RequestHandler):
     """
-    Makes requests to the Twitter API to retrieve the score.
+    Makes requests to the Twitter API to retrieve the score. Called from the
+    task queues.
     """
     @ndb.toplevel
     def post(self):
@@ -92,8 +93,10 @@ class CalculationHandler(webapp2.RequestHandler):
         elif twitter_id != '':
             twitter_id = int(twitter_id)
             score = get_score_by_twitter_id(twitter_id, depth).get_result()
+
+        # Skip if the score already exists and is less than 10 days old
         if score is None or score.last_updated < (
-                datetime.datetime.now() - datetime.timedelta(days=7)):
+                datetime.datetime.now() - datetime.timedelta(days=10)):
             # We'll need the profile and timeline data.
             try:
                 profile = get_profile(screen_name, twitter_id)
@@ -109,7 +112,6 @@ class CalculationHandler(webapp2.RequestHandler):
                     raise  # Will retry later.
             if profile is not None:
                 timeline = get_timeline(screen_name, twitter_id)
-
             else:
                 timeline = None
 
@@ -133,6 +135,7 @@ class CalculationHandler(webapp2.RequestHandler):
                         grades = calculated_score(profile, timeline, depth)
                         score.grades = grades
                         score.put()
+
         else:
             # We have an up-to-date score. Nothing to do.
             pass
