@@ -81,12 +81,10 @@ class CalculationHandler(webapp2.RequestHandler):
     """
     @ndb.toplevel
     def post(self):
-        # TODO: Here we get the user's stream, profile and calculate their nazi
-        # score aplying the criteria functions on the data and adding the
-        # results.
         screen_name = self.request.get('screen_name')
         twitter_id = self.request.get('twitter_id')
         depth = int(self.request.get('depth'))
+        # Select the appropriate method based on what information we got.
         if screen_name != '':
             screen_name = screen_name.lower()
             score = get_score_by_screen_name(screen_name, depth).get_result()
