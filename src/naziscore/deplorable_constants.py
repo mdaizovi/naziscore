@@ -9,6 +9,7 @@ HASHTAGS = [
     '#banrefugees',
     '#bansharialaw',
     '#cnnisisis',
+    '#cuckistan',
     '#culturalmarxism',
     '#defendeuropa',
     '#dingotwitter',
