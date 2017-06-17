@@ -484,6 +484,7 @@ FAKE_NEWS_WEBSITES = [
     'katehon.com',
     'katehon.org',
     'kauilapele.wordpress.com',
+    'kekistan.com',
     'kingworldnews.com',
     'kmt11.com',
     'knowledgeoftoday.org',
