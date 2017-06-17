@@ -1,17 +1,8 @@
 queue:
 
-- name: scoring
-  rate: 60/m
-  bucket_size: 60
-  max_concurrent_requests: 10
-  retry_parameters:
-    min_backoff_seconds: 60
-    max_backoff_seconds: 7200
-    max_doublings: 4
-
 - name: scoring-direct
   rate: 60/m
-  bucket_size: 60
+  bucket_size: 200
   max_concurrent_requests: 10
   retry_parameters:
     min_backoff_seconds: 60
@@ -19,8 +10,8 @@ queue:
     max_doublings: 4
 
 - name: scoring-indirect
-  rate: 60/m
-  bucket_size: 60
+  rate: 90/m
+  bucket_size: 200
   max_concurrent_requests: 10
   retry_parameters:
     min_backoff_seconds: 60
