@@ -100,7 +100,7 @@ def get_timeline_by_screen_name(screen_name):
 
     See https://dev.twitter.com/rest/reference/get/statuses/user_timeline"""
     return authenticated_get(
-        'https://api.twitter.com/1.1/statuses/user_timeline.json?count=100&'
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?count=90&'
         'screen_name={}'.format(
             screen_name))
 
