@@ -8,6 +8,7 @@ import urllib
 
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
+from google.appengine.ext import ndb
 
 from naziscore.credentials import (
     CUSTOMER_KEY,
@@ -39,6 +40,7 @@ def get_access_token(force=False):
     return token
 
 
+@ndb.tasklet
 def authenticated_get(
         url, customer_key=CUSTOMER_KEY, customer_secret=CUSTOMER_SECRET):
     """Performs an authenticated GET to the given URL.
