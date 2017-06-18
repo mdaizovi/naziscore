@@ -46,7 +46,8 @@ HASHTAGS = (
     '#whitepride',
 )
 
-TRIGGERS = [
+TRIGGERS = (
+    'alt-right',
     'anti-snowflake'
     'anti-white'
     'cuck',
@@ -65,7 +66,8 @@ TRIGGERS = [
     'shitlord',
     'the white race',
     'white genocide',
-]
+    'white identitarian',
+)
 
 PEPES = (
     u'🐸',
