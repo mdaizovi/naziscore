@@ -10,7 +10,7 @@ queue:
     max_doublings: 4
 
 - name: scoring-indirect
-  rate: 90/m
+  rate: 60/m
   bucket_size: 200
   max_concurrent_requests: 10
   retry_parameters:
