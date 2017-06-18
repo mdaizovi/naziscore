@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-HASHTAGS = [
+HASHTAGS = (
     '#altright',
     '#antiwhite',
     '#auspol',
@@ -44,7 +44,7 @@ HASHTAGS = [
     '#whitelivesmatter',
     '#whitemanfight',
     '#whitepride',
-]
+)
 
 TRIGGERS = [
     'anti-snowflake'
@@ -67,13 +67,20 @@ TRIGGERS = [
     'white genocide',
 ]
 
-PEPES = u"🐸🥛👌✠"
+PEPES = (
+    u'🐸',
+    u'🥛',
+    u'👌',
+    u'✠',
+    u'👌🏻',
+    u'👌🏼',
+    )
 
 # List collected from
 # https://docs.google.com/spreadsheets/d/1o3FFiCB_W2sCLH7g6iPwzC9lmfIj7ojlA-htvQCJhaw/edit#gid=0
 # with some additions.
 
-FAKE_NEWS_WEBSITES = [
+FAKE_NEWS_WEBSITES = (
     '100percentfedup.com',
     '16wmpo.com',
     '21stcenturywire.com',
@@ -245,6 +252,7 @@ FAKE_NEWS_WEBSITES = [
     'consortiumnews.com',
     'conspiracyplanet.com',
     'conspiracywire.com',
+    'contemplationist.wordpress.com',
     'corbettreport.com',
     'corbettreport.com',
     'countdowntozerotime.com',
@@ -607,6 +615,7 @@ FAKE_NEWS_WEBSITES = [
     'nodisinfo.com',
     'nomorefakenews.com',
     'nonaiswa.org/wordpress',
+    'nordfront.se',
     'northcrane.com',
     'notallowedto.com',
     'notime4bull.com',
@@ -737,6 +746,7 @@ FAKE_NEWS_WEBSITES = [
     'rockcitytimes.com',
     'rogue-nation3.com',
     'ronpaulinstitute.org',
+    'rt.com',
     'rumorjournal.com',
     'rumormillnews.com',
     'ruptly.tv',
@@ -1038,6 +1048,7 @@ FAKE_NEWS_WEBSITES = [
     'webdaily.com',
     'weeklystandard.com',
     'weeklyworldnews.com',
+    'wesearchr.com',
     'weshapelife.org',
     'westernjournalism.com',
     'whatdoesitmean.com',
@@ -1072,8 +1083,6 @@ FAKE_NEWS_WEBSITES = [
     'worldwidehealthy.com',
     'wtoe5news.com',
     'wundergroundmusic.com',
-    'www.rt.com',
-    'www.wesearchr.com',
     'x22report.com',
     'yellowhammernews.com',
     'yesimright.com',
@@ -1086,4 +1095,4 @@ FAKE_NEWS_WEBSITES = [
     'zengardner.com',
     'zerohedge.com',
     'zootfeed.com',
-]
+)
