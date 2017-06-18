@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-HASHTAGS = [
+HASHTAGS = (
     '#altright',
     '#antiwhite',
     '#auspol',
@@ -44,7 +44,7 @@ HASHTAGS = [
     '#whitelivesmatter',
     '#whitemanfight',
     '#whitepride',
-]
+)
 
 TRIGGERS = [
     'anti-snowflake'
@@ -67,13 +67,20 @@ TRIGGERS = [
     'white genocide',
 ]
 
-PEPES = u"🐸🥛👌✠"
+PEPES = (
+    u'🐸',
+    u'🥛',
+    u'👌',
+    u'✠',
+    u'👌🏻',
+    u'👌🏼',
+    )
 
 # List collected from
 # https://docs.google.com/spreadsheets/d/1o3FFiCB_W2sCLH7g6iPwzC9lmfIj7ojlA-htvQCJhaw/edit#gid=0
 # with some additions.
 
-FAKE_NEWS_WEBSITES = [
+FAKE_NEWS_WEBSITES = (
     '100percentfedup.com',
     '16wmpo.com',
     '21stcenturywire.com',
@@ -1086,4 +1093,4 @@ FAKE_NEWS_WEBSITES = [
     'zengardner.com',
     'zerohedge.com',
     'zootfeed.com',
-]
+)
