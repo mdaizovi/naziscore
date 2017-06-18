@@ -16,13 +16,4 @@ store in the datastore (as a queued task).
 
 # Criteria
 The application gives a score based on the Twitter profile of the
-user. Points are given according to the criteria listed below:
-
-- #MAGA, #WhiteGenocide and similar hashtags in the profile or recent tweets
-- Less than 10 followers
-- Profile less than two months old
-- Has a frog emoji in the name
-- Has a gab.ai URL
-- Used terms like "libtard" in recent tweets/retweets, description, name or screen-name.
-- Retweets other scored accounts
-- Likes offensive tweets
+user and their most recent tweets. See `scoring.py` for details.
