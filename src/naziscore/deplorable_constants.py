@@ -173,6 +173,7 @@ FAKE_NEWS_WEBSITES = (
     'bigbluevision.com',
     'bigbluevision.org',
     'bighairynews.com',
+    'bigleaguepolitics.com',
     'bignuggetnews.com',
     'bigpzone.com',
     'bipartisanreport.com',
@@ -835,6 +836,7 @@ FAKE_NEWS_WEBSITES = (
     'theburningplatform.com',
     'thecarsmagazine.com',
     'thecivilian.co.nz',
+    'thecolumbiabugle.com',
     'thecommonsenseshow.com',
     'theconservativetreehouse.com',
     'thecontroversialfiles.net',
@@ -1097,6 +1099,8 @@ FAKE_NEWS_WEBSITES = (
     'zengardner.com',
     'zerohedge.com',
     'zootfeed.com',
+) + (  # Not quite news, but good indicators.
+    'grrrgraphics.com',
 )
 
 ACTUAL_NEWS_WEBSITES = (
