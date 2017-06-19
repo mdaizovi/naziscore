@@ -18,6 +18,33 @@ from naziscore.deplorable_constants import (
     TRIGGERS,
 )
 
+# Scoring
+POINTS_GABAI = 1
+
+POINTS_PEPE_SCREEN_NAME = 2
+POINTS_PEPE_NAME = 2
+POINTS_PEPE_DESCRIPTION = 1
+POINTS_PEPE_TWEET = 1
+
+POINTS_HASHTAG_SCREEN_NAME = 2
+POINTS_HASHTAG_NAME = 2
+POINTS_HASHTAG_DESCRIPTION = 1
+POINTS_HASHTAG_TWEET = 1
+
+POINTS_TRIGGER_SCREEN_NAME = 2
+POINTS_TRIGGER_NAME = 2
+POINTS_TRIGGER_DESCRIPTION = 1
+POINTS_TRIGGER_TWEET = 1
+
+POINTS_RETWEET_FRACTION = 0.125
+
+POINTS_FAKE_NEWS = 0.03125
+
+POINTS_FEW_FOLLOWERS = 1
+POINTS_NO_FOLLOWER = 3
+
+POINTS_NEW_ACCOUNT = 1
+
 
 @ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
@@ -95,9 +122,9 @@ def calculated_score(profile_json, posts_json, depth):
 
 
 def points_from_gabai(profile, timeline, depth):
-    "Returns 1 if 'gab.ai' is in the profile name or description."
-    result = (1 if 'gab.ai' in profile['description']
-              or 'gab.ai' in profile['name']
+    "Returns POINTS_GABAI if 'gab.ai' is in the profile name or description."
+    result = (POINTS_GABAI if 'gab.ai' in profile['description'].lower()
+              or 'gab.ai' in profile['name'].lower()
               else 0)
     if result > 0:
         logging.info(
@@ -105,25 +132,29 @@ def points_from_gabai(profile, timeline, depth):
     return result
 
 
-def trigger_count(triggers, profile, timeline):
-    """Counts the number of times a trigger from triggers appears in the
-    profile or timeline."""
+def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
+                  points_description, points_tweet):
+    "Returns the score according to the trigger count in various elements."
     result = 0
     tweets = [t['text'] for t in timeline]  # Could use ['status']['text'].
     for trigger in triggers:
         # Check the profile
-        result += 1 if trigger in profile['screen_name'].lower() else 0
-        result += 1 if trigger in profile['name'].lower() else 0
-        result += 1 if trigger in profile['description'].lower() else 0
+        result += (points_screen_name
+                   if trigger in profile['screen_name'].lower() else 0)
+        result += points_name if trigger in profile['name'].lower() else 0
+        result += (points_description
+                   if trigger in profile['description'].lower() else 0)
         # Check the tweets themselves
         for tweet in tweets:
-            result += 1 if trigger in tweet.lower() else 0
+            result += points_tweet if trigger in tweet.lower() else 0
     return result
 
 
 def points_from_pepes(profile, timeline, depth):
     "Returns the number of different racist symbols in the name and tweets."
-    result = trigger_count(PEPES, profile, timeline)
+    result = trigger_count(
+        PEPES, profile, timeline, POINTS_PEPE_SCREEN_NAME, POINTS_PEPE_NAME,
+        POINTS_PEPE_DESCRIPTION, POINTS_PEPE_TWEET)
     if result > 0:
         logging.info(
             '{} scored {} for pepes'.format(profile['screen_name'], result))
@@ -133,7 +164,9 @@ def points_from_pepes(profile, timeline, depth):
 def points_from_hashtags(profile, timeline, depth):
     "Returns the number of trigger hasthags in the profile and tweets."
     # Hashtags also appear under ['status']['entities']['hashtags']
-    result = trigger_count(HASHTAGS, profile, timeline)
+    result = trigger_count(
+        HASHTAGS, profile, timeline, POINTS_HASHTAG_SCREEN_NAME,
+        POINTS_HASHTAG_NAME, POINTS_HASHTAG_DESCRIPTION, POINTS_HASHTAG_TWEET)
     if result > 0:
         logging.info(
             '{} scored {} for hashtags'.format(profile['screen_name'], result))
@@ -142,7 +175,9 @@ def points_from_hashtags(profile, timeline, depth):
 
 def points_from_triggers(profile, timeline, depth):
     "Returns the number of trigger hasthags in the profile and tweets."
-    result = trigger_count(TRIGGERS, profile, timeline)
+    result = trigger_count(
+        TRIGGERS, profile, timeline, POINTS_TRIGGER_SCREEN_NAME,
+        POINTS_TRIGGER_NAME, POINTS_TRIGGER_DESCRIPTION, POINTS_TRIGGER_TWEET)
     if result > 0:
         logging.info(
             '{} scored {} for triggers'.format(profile['screen_name'], result))
@@ -167,7 +202,8 @@ def points_from_retweets(profile, timeline, depth):
         for screen_name in authors:
             score = get_score_by_screen_name(
                 screen_name, depth + 1).get_result()
-            result += score.score * .125 if score is not None else 0
+            result += (score.score * POINTS_RETWEET_FRACTION
+                       if score is not None else 0)
         if result > 0:
             logging.info(
                 '{} scored {} for retweets'.format(
@@ -185,7 +221,7 @@ def points_from_external_links(profile, timeline, depth):
     for l in lists:
         for u in l:
             for fnw in FAKE_NEWS_WEBSITES:
-                result += 0.03125 if fnw in u['expanded_url'] else 0
+                result += POINTS_FAKE_NEWS if fnw in u['expanded_url'] else 0
     if result > 0:
         logging.info(
             '{} scored {} for fake news'.format(
@@ -208,11 +244,14 @@ def points_from_favorites(profile, timeline, depth):
 
 
 def points_from_low_follower(profile, timeline, depth):
-    "Returns 1 if the account has fewer than 11 followes, 3 if it has none."
+    """
+    Returns POINTS_FOLLOW_LT_11 if the account has fewer than 11 followes,
+    POINTS_NO_FOLLOWER if it has none.
+    """
     if profile['followers_count'] == 0:
-        result = 3
+        result = POINTS_NO_FOLLOWER
     elif profile['followers_count'] < 11:
-        result = 1
+        result = POINTS_FEW_FOLLOWERS
     else:
         result = 0
     if result > 0:
@@ -223,11 +262,11 @@ def points_from_low_follower(profile, timeline, depth):
 
 
 def points_from_new_account(profile, timeline, depth):
-    "Returns 1 if the profile is less than 30 days old."
+    "Returns POINTS_NEW_ACCOUNT if the profile is less than 30 days old."
     age = (datetime.datetime.now() - datetime.datetime.strptime(
         profile['created_at'], '%a %b %d %H:%M:%S +0000 %Y')).days
     if age < 30:
-        result = 1
+        result = POINTS_NEW_ACCOUNT
     else:
         result = 0
     if result > 0:
