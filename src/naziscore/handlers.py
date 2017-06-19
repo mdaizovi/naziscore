@@ -42,7 +42,8 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                     {'screen_name': score.screen_name,
                      'twitter_id': score.twitter_id,
                      'last_updated': score.last_updated.isoformat(),
-                     'score': score.score},
+                     'score': score.score,
+                     'grades': score.grades},
                     encoding='utf-8')
                 memcache.set('screen_name:' + screen_name, result, 3600)
         self.response.out.write(result)
@@ -69,7 +70,8 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                     {'screen_name': score.screen_name,
                      'twitter_id': score.twitter_id,
                      'last_updated': score.last_updated.isoformat(),
-                     'score': score.score}, encoding='utf-8')
+                     'score': score.score,
+                     'grades': score.grades}, encoding='utf-8')
                 memcache.set('twitter_id:{}'.format(twitter_id), result, 3600)
         self.response.out.write(result)
 
