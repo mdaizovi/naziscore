@@ -58,6 +58,7 @@ TRIGGERS = (
     'fash ',
     'goy',
     'huhwhite',
+    'jewish media',
     'kekistan',
     'libtard',
     'niggertech',
