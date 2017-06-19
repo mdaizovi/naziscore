@@ -16,3 +16,7 @@ class Score(ndb.Model):
 
     profile_text = ndb.TextProperty()
     timeline_text = ndb.TextProperty()
+
+    avg_interval = ndb.IntegerProperty()  # Average time between tweets
+    websites = ndb.JsonProperty()  # Websites posted
+    hashtags = ndb.StringProperty(repeat=True)
