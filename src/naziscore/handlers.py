@@ -137,3 +137,15 @@ class CalculationHandler(webapp2.RequestHandler):
         else:
             # We have an up-to-date score. Nothing to do.
             pass
+
+
+class UpdateOfferderFollowersHandler(webapp2.RequestHandler):
+
+    @ndb.toplevel
+    def post(self):
+        """
+        Iterate over the most offensive profiles and start analyses of their
+        followers.
+        """
+        for offender in Score.query(Score.score > 0).order(-Score.score):
+            pass
