@@ -147,5 +147,5 @@ class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
         Iterate over the most offensive profiles and start analyses of their
         followers.
         """
-        for offender in Score.query(Score.score > 0).order(-Score.score):
+        for offender in Score.query().order(-Score.score).iter():
             pass
