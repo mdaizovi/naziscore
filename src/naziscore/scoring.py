@@ -12,6 +12,7 @@ from google.appengine.api import taskqueue
 from naziscore.models import Score
 
 from naziscore.deplorable_constants import (
+    ACTUAL_NEWS_WEBSITES,
     FAKE_NEWS_WEBSITES,
     HASHTAGS,
     PEPES,
@@ -39,6 +40,7 @@ POINTS_TRIGGER_TWEET = 1
 POINTS_RETWEET_FRACTION = 0.125
 
 POINTS_FAKE_NEWS = 0.03125
+POINTS_ACTUAL_NEWS = - POINTS_FAKE_NEWS
 
 POINTS_FEW_FOLLOWERS = 1
 POINTS_NO_FOLLOWER = 3
@@ -220,8 +222,26 @@ def points_from_external_links(profile, timeline, depth):
                   t['entities']['urls'] for t in timeline if 'entities' in t]
     for l in lists:
         for u in l:
-            for fnw in FAKE_NEWS_WEBSITES:
-                result += POINTS_FAKE_NEWS if fnw in u['expanded_url'] else 0
+            for nw in FAKE_NEWS_WEBSITES:
+                result += POINTS_FAKE_NEWS if nw in u['expanded_url'] else 0
+    if result > 0:
+        logging.info(
+            '{} scored {} for fake news'.format(
+                profile['screen_name'], result))
+    return result
+
+
+def points_from_actual_news_sites(profile, timeline, depth):
+    "Returns POINTS_ACTUAL_NEWS points for each link from the actual news sources."
+    result = 0
+    lists = [s for s in
+             [t['retweeted_status']['entities']['urls']for t in
+              timeline if 'retweeted_status' in t] if s] + [
+                  t['entities']['urls'] for t in timeline if 'entities' in t]
+    for l in lists:
+        for u in l:
+            for nw in ACTUAL_NEWS_WEBSITES:
+                result += POINTS_ACTUAL_NEWS if nw in u['expanded_url'] else 0
     if result > 0:
         logging.info(
             '{} scored {} for fake news'.format(
