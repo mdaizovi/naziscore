@@ -139,7 +139,7 @@ class CalculationHandler(webapp2.RequestHandler):
             pass
 
 
-class UpdateOfferderFollowersHandler(webapp2.RequestHandler):
+class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
 
     @ndb.toplevel
     def post(self):
