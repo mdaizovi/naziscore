@@ -19,7 +19,10 @@ def get_access_token(force=False):
     """Tries to obtain access token from memcache and, if it fails,
     obtains a new set and stores in memcache.
 
-    See https://dev.twitter.com/oauth/application-only"""
+    See https://dev.twitter.com/oauth/application-only.
+
+    Deleting the memcache key `access_token` will trigger a token refresh.
+    """
     token = memcache.get('access_token')
     if force or token is None:
         logging.warning('Needed to fetch access_token')

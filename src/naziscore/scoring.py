@@ -214,7 +214,7 @@ def points_from_retweets(profile, timeline, depth):
 
 
 def points_from_external_links(profile, timeline, depth):
-    "Returns 0.03125 point for each link from the fake news sources."
+    "Returns POINTS_FAKE_NEWS points for each link from the fake news sources."
     result = 0
     lists = [s for s in
              [t['retweeted_status']['entities']['urls']for t in
