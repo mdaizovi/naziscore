@@ -190,7 +190,6 @@ FAKE_NEWS_WEBSITES = (
     'breaking911.com',
     'breakpoint.org',
     'breitbart.com',
-    'breitbart.com',
     'britainfirst.tv',
     'brotherjohnf.com',
     'bullionbullscanada.com',

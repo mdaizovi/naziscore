@@ -14,9 +14,11 @@ class Score(ndb.Model):
         lambda self: float(sum([self.grades[k] for k in self.grades])))
     grades = ndb.JsonProperty()
 
+    # For refreshing scores without hitting the APIs
     profile_text = ndb.TextProperty()
     timeline_text = ndb.TextProperty()
 
+    # For analytics
     avg_interval = ndb.IntegerProperty()  # Average time between tweets
-    websites = ndb.JsonProperty()  # Websites posted
-    hashtags = ndb.StringProperty(repeat=True)
+    websites = ndb.StringProperty(repeated=True)
+    hashtags = ndb.StringProperty(repeated=True)
