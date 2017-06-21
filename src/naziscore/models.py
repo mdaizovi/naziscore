@@ -39,11 +39,13 @@ class Score(ndb.Model):
 
     def get_websites(self):
         timeline = json.loads(self.timeline_text)
-        hosts = set([urlparse.urlparse(u['expanded_url']).netloc
-                     for u in itertools.chain(
-                             *[ul for ul in [tweet['entities']['urls']
-                                             for tweet in timeline]])])
-        return list(hosts)
+        lists = [s for s in
+                 [t['retweeted_status']['entities']['urls']for t in
+                  timeline if 'retweeted_status' in t] if s] + [
+                      t['entities']['urls']
+                      for t in timeline if 'entities' in t]
+        return list(set([urlparse.urlparse(u['expanded_url']).netloc
+                         for u in itertools.chain(*lists)]))
 
     screen_name = ndb.StringProperty()
     screen_name_lower = ndb.ComputedProperty(
