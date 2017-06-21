@@ -1,10 +1,50 @@
 # -*- coding:utf-8 -*-
 
+import datetime
+import itertools
+import json
+import urlparse
+
 from google.appengine.ext import ndb
 
 
 class Score(ndb.Model):
     """Our sample class"""
+
+    def get_average_interval(self):
+        if self.timeline_text is not None:
+            timeline = json.loads(self.timeline_text)
+            oldest_date = datetime.datetime.strptime(
+                timeline[-1]['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+            newest_date = datetime.datetime.strptime(
+                timeline[0]['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+            return (newest_date - oldest_date).seconds
+        else:
+            return None
+
+    def get_follower_count(self):
+        profile = json.loads(self.profile_text)
+        return profile['followers_count']
+
+    def get_hashtags(self):
+        timeline = json.loads(self.timeline_text)
+        return list(
+            itertools.chain(
+                *['#' + hashtag['text'] if 'text' in hashtag
+                  else ['#' + ht['text'] for ht in hashtag]
+                  for hashtag in [
+                          tweet['entities']['hashtags']
+                          for tweet in timeline
+                          if tweet['entities']['hashtags'] != []]]))
+
+    def get_websites(self):
+        timeline = json.loads(self.timeline_text)
+        hosts = set([urlparse.urlparse(u['expanded_url']).netloc
+                     for u in itertools.chain(
+                             *[ul for ul in [tweet['entities']['urls']
+                                             for tweet in timeline]])])
+        return list(hosts)
+
     screen_name = ndb.StringProperty()
     screen_name_lower = ndb.ComputedProperty(
         lambda self: self.screen_name.lower())
@@ -19,6 +59,7 @@ class Score(ndb.Model):
     timeline_text = ndb.TextProperty()
 
     # For analytics
-    avg_interval = ndb.IntegerProperty()  # Average time between tweets
-    websites = ndb.StringProperty(repeated=True)
-    hashtags = ndb.StringProperty(repeated=True)
+    follower_count = ndb.ComputedProperty(get_follower_count)
+    avg_interval = ndb.ComputedProperty(get_average_interval)
+    websites = ndb.ComputedProperty(get_websites, repeated=True)
+    hashtags = ndb.ComputedProperty(get_hashtags, repeated=True)
