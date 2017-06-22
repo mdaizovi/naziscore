@@ -19,6 +19,9 @@ app = webapp2.WSGIApplication([
         webapp2.Route(
             '/_ah/queue/scoring-indirect', CalculationHandler,
             name='calculation_handler_indirect_v1'),
+        webapp2.Route(
+            '/_ah/queue/refresh', CalculationHandler,
+            name='calculation_refresh_v1'),
     ],
     debug=DEBUG)
 

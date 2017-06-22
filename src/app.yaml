@@ -11,6 +11,10 @@ handlers:
   script: naziscore.worker.app
   login: admin
 
+- url: /_ah/cron/.*
+  script: naziscore.cron.app
+  login: admin
+
 - url: .*
   script: naziscore.main.app
 

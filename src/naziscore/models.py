@@ -9,7 +9,7 @@ from google.appengine.ext import ndb
 
 
 class Score(ndb.Model):
-    """Our sample class"""
+    "Keeps data on Twitter profiles"
 
     def get_average_interval(self):
         if self.timeline_text is not None:

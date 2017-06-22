@@ -93,14 +93,35 @@ def get_score_by_twitter_id(twitter_id, depth):
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
-            pass
+            logging.warning(
+                'Fetch for {} already scheduled'.format(twitter_id))
         except taskqueue.TombstonedTaskError:
             # This task is too recent. We shouldn't try again so soon.
             logging.warning('Fetch for {} tombstoned'.format(twitter_id))
-            pass
         raise ndb.Return(None)
     else:
         raise ndb.Return(score)
+
+
+@ndb.tasklet
+def refresh_score_by_twitter_id(twitter_id):
+    try:
+        task = taskqueue.Task(
+            name=('{}_{}'.format(
+                twitter_id,
+                os.environ['CURRENT_VERSION_ID'].split('.')[0])),
+            params={
+                'twitter_id': twitter_id,
+                'depth': 0
+            })
+        task.add_async('refresh')
+    except taskqueue.TaskAlreadyExistsError:
+        # We already are going to check this person. There is nothing
+        # to do here.
+        logging.warning('Fetch for {} already scheduled'.format(twitter_id))
+    except taskqueue.TombstonedTaskError:
+        # This task is too recent. We shouldn't try again so soon.
+        logging.warning('Fetch for {} tombstoned'.format(twitter_id))
 
 
 def calculated_score(profile_json, posts_json, depth):
@@ -214,7 +235,7 @@ def points_from_retweets(profile, timeline, depth):
 
 
 def points_from_external_links(profile, timeline, depth):
-    "Returns POINTS_FAKE_NEWS points for each link from the fake news sources."
+    "Returns POINTS_FAKE_NEWS points for each link from fake news sources."
     result = 0
     lists = [s for s in
              [t['retweeted_status']['entities']['urls']for t in
@@ -232,7 +253,7 @@ def points_from_external_links(profile, timeline, depth):
 
 
 def points_from_actual_news_sites(profile, timeline, depth):
-    "Returns POINTS_ACTUAL_NEWS points for each link from the actual news sources."
+    "Returns POINTS_ACTUAL_NEWS points for each link from actual news sources."
     result = 0
     lists = [s for s in
              [t['retweeted_status']['entities']['urls']for t in

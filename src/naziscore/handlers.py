@@ -14,12 +14,14 @@ from naziscore.scoring import (
     calculated_score,
     get_score_by_screen_name,
     get_score_by_twitter_id,
+    refresh_score_by_twitter_id,
 )
 from naziscore.twitter import (
     get_profile,
     get_timeline,
 )
 
+MAX_AGE_DAYS = 7
 
 class ScoreByNameHandler(webapp2.RequestHandler):
 
@@ -86,16 +88,19 @@ class CalculationHandler(webapp2.RequestHandler):
         screen_name = self.request.get('screen_name')
         twitter_id = self.request.get('twitter_id')
         depth = int(self.request.get('depth'))
-        # Select the appropriate method based on what information we got.
+        # Select the appropriate method based on what information we got. Try
+        # to get a valid score instance.
         if screen_name != '':
             score = get_score_by_screen_name(screen_name, depth).get_result()
         elif twitter_id != '':
             twitter_id = int(twitter_id)
             score = get_score_by_twitter_id(twitter_id, depth).get_result()
 
-        # Skip if the score already exists and is less than 10 days old
+        # Skip if the score already exists and is less than MAX_AGE_DAYS days
+        # old.
         if score is None or score.last_updated < (
-                datetime.datetime.now() - datetime.timedelta(days=10)):
+                datetime.datetime.now()
+                - datetime.timedelta(days=MAX_AGE_DAYS)):
             # We'll need the profile and timeline data.
             try:
                 profile = get_profile(screen_name, twitter_id)
@@ -127,7 +132,8 @@ class CalculationHandler(webapp2.RequestHandler):
                       timeline_text=timeline).put()
 
             elif score is not None and score.last_updated < (
-                    datetime.datetime.now() - datetime.timedelta(days=7)):
+                    datetime.datetime.now()
+                    - datetime.timedelta(days=MAX_AGE_DAYS)):
                 # We need to either update or create a new one.
                     if timeline is not None:
                         grades = calculated_score(profile, timeline, depth)
@@ -147,5 +153,20 @@ class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
         Iterate over the most offensive profiles and start analyses of their
         followers.
         """
-        for offender in Score.query().order(-Score.score).iter():
+        for score in Score.query().order(-Score.score).iter():
             pass
+
+
+class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
+    "Updates old/outdated score entries. Called by the refresh cron job."
+
+    def get(self):
+        """
+        Selects oldest entries that are older than MAX_AGE_DAYS days and
+        refreshes them.
+        """
+        for score in Score.query(Score.last_updated < (
+                datetime.datetime.now()
+                - datetime.timedelta(days=MAX_AGE_DAYS))
+        ).order(Score.last_updated).fetch(250):
+            refresh_score_by_twitter_id(score.twitter_id)

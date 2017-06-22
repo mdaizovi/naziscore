@@ -1,0 +1,4 @@
+cron:
+- description: "Daily refresh"
+  url: /_ah/cron/refresh
+  schedule: every day 01:00
