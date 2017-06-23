@@ -123,12 +123,12 @@ def refresh_score_by_twitter_id(twitter_id):
         logging.warning('Fetch for {} tombstoned'.format(twitter_id))
 
 
-def calculated_score(profile_json, posts_json, depth):
+def calculated_score(profile_json, timeline_json, depth):
     """Returns the score for the recent posts JSON"""
     g = globals()
     grades = {}
     profile = json.loads(profile_json)
-    timeline = json.loads(posts_json)
+    timeline = json.loads(timeline_json)
     if 'error' in timeline and timeline['error'] == 'Not authorized.':
         logging.info('{} is private'.format(profile['screen_name']))
         timeline = []  # There are no tweets to check, user is private
