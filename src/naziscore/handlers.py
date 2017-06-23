@@ -136,8 +136,10 @@ class CalculationHandler(webapp2.RequestHandler):
             elif score is not None and score.last_updated < (
                     datetime.datetime.now()
                     - datetime.timedelta(days=MAX_AGE_DAYS)):
-                grades = calculated_score(profile, timeline, depth)
-                score.grades = grades
+
+                if timeline is not None:
+                    grades = calculated_score(profile, timeline, depth)
+                    score.grades = grades
                 score.put()
                 logging.info(
                     'Updated score entry for {}'.format(screen_name))
