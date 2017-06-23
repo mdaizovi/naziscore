@@ -103,7 +103,6 @@ def get_score_by_twitter_id(twitter_id, depth):
         raise ndb.Return(score)
 
 
-@ndb.tasklet
 def refresh_score_by_twitter_id(twitter_id):
     try:
         task = taskqueue.Task(
@@ -114,7 +113,7 @@ def refresh_score_by_twitter_id(twitter_id):
                 'twitter_id': twitter_id,
                 'depth': 0
             })
-        task.add_async('refresh')
+        task.add('refresh')
     except taskqueue.TaskAlreadyExistsError:
         # We already are going to check this person. There is nothing
         # to do here.
