@@ -3,6 +3,7 @@
 import datetime
 import itertools
 import json
+import logging
 import urlparse
 
 from google.appengine.ext import ndb
@@ -15,11 +16,18 @@ class Score(ndb.Model):
         if self.timeline_text is not None:
             timeline = json.loads(self.timeline_text)
             if 'error' not in timeline:
-                oldest_date = datetime.datetime.strptime(
-                    timeline[-1]['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-                newest_date = datetime.datetime.strptime(
-                    timeline[0]['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-                return (newest_date - oldest_date).seconds
+                try:
+                    oldest_date = datetime.datetime.strptime(
+                        timeline[-1]['created_at'],
+                        '%a %b %d %H:%M:%S +0000 %Y')
+                    newest_date = datetime.datetime.strptime(
+                        timeline[0]['created_at'],
+                        '%a %b %d %H:%M:%S +0000 %Y')
+                    return (newest_date - oldest_date).seconds
+                except IndexError:
+                    logging.warning(
+                        'get_average_interval for {} could not be '
+                        'calculated'.format(self.screen_name))
         return None
 
     def get_follower_count(self):
