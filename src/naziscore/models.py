@@ -14,38 +14,44 @@ class Score(ndb.Model):
     def get_average_interval(self):
         if self.timeline_text is not None:
             timeline = json.loads(self.timeline_text)
-            oldest_date = datetime.datetime.strptime(
-                timeline[-1]['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-            newest_date = datetime.datetime.strptime(
-                timeline[0]['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-            return (newest_date - oldest_date).seconds
-        else:
-            return None
+            if 'error' not in timeline:
+                oldest_date = datetime.datetime.strptime(
+                    timeline[-1]['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+                newest_date = datetime.datetime.strptime(
+                    timeline[0]['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+                return (newest_date - oldest_date).seconds
+        return None
 
     def get_follower_count(self):
         profile = json.loads(self.profile_text)
         return profile['followers_count']
 
     def get_hashtags(self):
-        timeline = json.loads(self.timeline_text)
-        return list(
-            itertools.chain(
-                *['#' + hashtag['text'] if 'text' in hashtag
-                  else ['#' + ht['text'] for ht in hashtag]
-                  for hashtag in [
-                          tweet['entities']['hashtags']
-                          for tweet in timeline
-                          if tweet['entities']['hashtags'] != []]]))
+        if self.timeline_text is not None:
+            timeline = json.loads(self.timeline_text)
+            if 'error' not in timeline:
+                return list(
+                    itertools.chain(
+                        *['#' + hashtag['text'] if 'text' in hashtag
+                          else ['#' + ht['text'] for ht in hashtag]
+                          for hashtag in [
+                                  tweet['entities']['hashtags']
+                                  for tweet in timeline
+                                  if tweet['entities']['hashtags'] != []]]))
+        return None
 
     def get_websites(self):
-        timeline = json.loads(self.timeline_text)
-        lists = [s for s in
-                 [t['retweeted_status']['entities']['urls']for t in
-                  timeline if 'retweeted_status' in t] if s] + [
-                      t['entities']['urls']
-                      for t in timeline if 'entities' in t]
-        return list(set([urlparse.urlparse(u['expanded_url']).netloc
-                         for u in itertools.chain(*lists)]))
+        if self.timeline_text is not None:
+            timeline = json.loads(self.timeline_text)
+            if 'error' not in timeline:
+                lists = [s for s in
+                         [t['retweeted_status']['entities']['urls']for t in
+                          timeline if 'retweeted_status' in t] if s] + [
+                              t['entities']['urls']
+                              for t in timeline if 'entities' in t]
+                return list(set([urlparse.urlparse(u['expanded_url']).netloc
+                                 for u in itertools.chain(*lists)]))
+        return None
 
     screen_name = ndb.StringProperty()
     screen_name_lower = ndb.ComputedProperty(
