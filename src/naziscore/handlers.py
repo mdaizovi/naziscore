@@ -172,5 +172,5 @@ class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
         for score in Score.query(Score.last_updated < (
                 datetime.datetime.now()
                 - datetime.timedelta(days=MAX_AGE_DAYS))
-        ).order(Score.last_updated).fetch(250):
+        ).order(Score.last_updated).fetch(200):
             refresh_score_by_twitter_id(score.twitter_id)
