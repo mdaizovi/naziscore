@@ -314,3 +314,14 @@ def points_from_new_account(profile, timeline, depth):
             '{} scored {} for low folower count'.format(
                 profile['screen_name'], result))
     return result
+
+
+@ndb.tasklet
+def apply_adjustment_for_followers(followed_profile, follower_screen_names):
+    """
+    Apply a fraction of the score of followed_profile to all its followers.
+    Updates the grades property of each user in follower_screen_names.
+    """
+    # TODO: This needs a push queue at 1/minute, a cron job to trigger it, a
+    # triggering endpoint and a service endpoint.
+    pass
