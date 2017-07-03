@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import csv
 import datetime
 import json
 import logging
@@ -174,3 +175,18 @@ class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
                 - datetime.timedelta(days=MAX_AGE_DAYS))
         ).order(Score.last_updated).fetch(200):
             refresh_score_by_twitter_id(score.twitter_id)
+
+
+class WorstHandler(webapp2.RequestHandler):
+    "Retrieves the n worst scores and returns it as a CSV."
+
+    def get(self):
+        "Naïve implementation."
+        response_writer = csv.writer(
+            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+        # Using GQL as a test - will create new index
+        for line in ndb.gql(
+                'select screen_name, twitter_id, score '
+                'from Score order by score desc'):
+            response_writer.writerow(
+                [line.screen_name, line.twitter_id, line.score])

@@ -8,6 +8,7 @@ from google.appengine.ext import ndb
 from naziscore.handlers import (
     ScoreByIdHandler,
     ScoreByNameHandler,
+    WorstHandler,
 )
 
 DEBUG = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
@@ -23,6 +24,8 @@ app = webapp2.WSGIApplication(
         webapp2.Route(
             '/v1/twitter_id/<twitter_id:\d*>/score.json',
             ScoreByIdHandler, name='score_handler_by_idv1'),
+        webapp2.Route(
+            '/v1/worst.csv', WorstHandler, name='worst_handler_v1'),
     ],
     debug=DEBUG)
 
