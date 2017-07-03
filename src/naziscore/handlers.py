@@ -177,6 +177,33 @@ class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
             refresh_score_by_twitter_id(score.twitter_id)
 
 
+class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
+    "Removes scores with repeated twitter_id. Keep the first."
+
+    def get(self):
+        "Naïve implementation."
+        scanned = 0
+        previous = None
+        gql = 'select twitter_id from Score '
+        if memcache.get('cleanup_maxdupe') is not None:
+            gql += 'where twitter_id > {} '.format(
+                memcache.get('cleanup_maxdupe'))
+            logging.warn(
+                'starting cleanup from {}'.format(
+                    memcache.get('cleanup_maxdupe')))
+        gql += ' order by twitter_id'
+        for line in ndb.gql(gql):
+            scanned += 1
+            memcache.set('cleanup_maxdupe', line.twitter_id)
+            if previous == line.twitter_id:
+                line.key.delete()
+                logging.warn(
+                    'Removing duplicate score for {} after scanning {}'.format(
+                        line.twitter_id, scanned))
+            else:
+                previous = line.twitter_id
+
+
 class WorstHandler(webapp2.RequestHandler):
     "Retrieves the n worst scores and returns it as a CSV."
 

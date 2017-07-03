@@ -2,3 +2,7 @@ cron:
 - description: "Daily refresh"
   url: /_ah/cron/refresh
   schedule: every 5 minutes from 00:00 to 02:00
+
+- description: "Daily cleanup"
+  url: /_ah/cron/cleanup
+  schedule: every sunday 00:00
