@@ -213,7 +213,7 @@ class WorstHandler(webapp2.RequestHandler):
             self.response, delimiter=',', quoting=csv.QUOTE_ALL)
         # Using GQL as a test - will create new index
         for line in ndb.gql(
-                'select screen_name, twitter_id, score '
-                'from Score order by score desc'):
+                'select distinct screen_name, twitter_id, score '
+                'from Score order by score desc limit 25000'):
             response_writer.writerow(
                 [line.screen_name, line.twitter_id, line.score])
