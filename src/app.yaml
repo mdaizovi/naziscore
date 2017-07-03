@@ -4,6 +4,7 @@ threadsafe: yes
 
 builtins:
 - remote_api: yes
+- appstats: on
 
 handlers:
 
