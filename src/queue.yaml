@@ -31,11 +31,11 @@ queue:
 
 # For refreshing outdated profile data.
 - name: refresh
-  rate: 1/s
-  bucket_size: 10
+  rate: 10/s
+  bucket_size: 100
   max_concurrent_requests: 1
 
 # High TPS for internal operations (schema changes, backups etc).
 - name: operations
   rate: 100/s
-  bucket_size: 20
+  bucket_size: 200
