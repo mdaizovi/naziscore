@@ -15,7 +15,7 @@ from naziscore.scoring import (
     calculated_score,
     get_score_by_screen_name,
     get_score_by_twitter_id,
-    refresh_score_by_twitter_id,
+    refresh_score_by_screen_name,
 )
 from naziscore.twitter import (
     get_profile,
@@ -23,6 +23,7 @@ from naziscore.twitter import (
 )
 
 MAX_AGE_DAYS = 7
+
 
 class ScoreByNameHandler(webapp2.RequestHandler):
 
@@ -170,11 +171,10 @@ class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
         Selects oldest entries that are older than MAX_AGE_DAYS days and
         refreshes them.
         """
-        for score in Score.query(Score.last_updated < (
-                datetime.datetime.now()
-                - datetime.timedelta(days=MAX_AGE_DAYS))
-        ).order(Score.last_updated).fetch(200):
-            refresh_score_by_twitter_id(score.twitter_id)
+        for score in ndb.gql(
+                'select screen_name, last_updated from Score '
+                'order by last_updated limit 10000'):
+            refresh_score_by_screen_name(score.screen_name)
 
 
 class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
@@ -197,11 +197,13 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
             memcache.set('cleanup_maxdupe', line.twitter_id)
             if previous == line.twitter_id:
                 line.key.delete()
-                logging.warn(
+                logging.info(
                     'Removing duplicate score for {} after scanning {}'.format(
                         line.twitter_id, scanned))
             else:
                 previous = line.twitter_id
+        memcache.delete('cleanup_maxdups')
+        logging.warn('Cleanup completed')
 
 
 class WorstHandler(webapp2.RequestHandler):
@@ -214,6 +216,6 @@ class WorstHandler(webapp2.RequestHandler):
         # Using GQL as a test - will create new index
         for line in ndb.gql(
                 'select distinct screen_name, twitter_id, score '
-                'from Score order by score desc limit 25000'):
+                'from Score order by score desc limit 20000'):
             response_writer.writerow(
                 [line.screen_name, line.twitter_id, line.score])

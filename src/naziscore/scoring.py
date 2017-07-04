@@ -39,7 +39,7 @@ POINTS_TRIGGER_TWEET = 1
 
 POINTS_RETWEET_FRACTION = 0.125
 
-POINTS_FAKE_NEWS = 0.03125
+POINTS_FAKE_NEWS = 0.125
 POINTS_ACTUAL_NEWS = - POINTS_FAKE_NEWS
 
 POINTS_FEW_FOLLOWERS = 1
@@ -103,24 +103,24 @@ def get_score_by_twitter_id(twitter_id, depth):
         raise ndb.Return(score)
 
 
-def refresh_score_by_twitter_id(twitter_id):
+def refresh_score_by_screen_name(screen_name):
     try:
         task = taskqueue.Task(
             name=('{}_{}'.format(
-                twitter_id,
+                screen_name,
                 os.environ['CURRENT_VERSION_ID'].split('.')[0])),
             params={
-                'twitter_id': twitter_id,
-                'depth': 0
+                'screen_name': screen_name,
+                'depth': 1  # Prevent cascades
             })
         task.add('refresh')
     except taskqueue.TaskAlreadyExistsError:
         # We already are going to check this person. There is nothing
         # to do here.
-        logging.warning('Fetch for {} already scheduled'.format(twitter_id))
+        logging.warning('Refresh for {} already scheduled'.format(screen_name))
     except taskqueue.TombstonedTaskError:
         # This task is too recent. We shouldn't try again so soon.
-        logging.warning('Fetch for {} tombstoned'.format(twitter_id))
+        logging.warning('Refresh for {} tombstoned'.format(screen_name))
 
 
 def calculated_score(profile_json, timeline_json, depth):
