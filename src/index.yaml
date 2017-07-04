@@ -12,6 +12,11 @@ indexes:
 
 - kind: Score
   properties:
+  - name: last_updated
+  - name: screen_name
+
+- kind: Score
+  properties:
   - name: score
     direction: desc
   - name: screen_name
