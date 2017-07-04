@@ -1121,12 +1121,15 @@ FAKE_NEWS_WEBSITES = (
     'zerohedge.com',
     'zootfeed.com',
 ) + (  # Others added later
-    'grrrgraphics.com',
-    'vladtepesblog.com',
-    'friatider.se',
-    'epochtimes.de',
     '10news.one',
-    'speisa.com'
+    'epochtimes.de',
+    'friatider.se',
+    'gatesofvienna.net',
+    'grrrgraphics.com',
+    'pamelageller.com',
+    'speisa.com',
+    'theoldcontinent.eu',
+    'vladtepesblog.com',
 )
 
 ACTUAL_NEWS_WEBSITES = (  # And their shorteners
