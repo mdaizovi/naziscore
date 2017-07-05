@@ -47,6 +47,8 @@ POINTS_NO_FOLLOWER = 3
 
 POINTS_NEW_ACCOUNT = 1
 
+# How far we'll go through the tree
+MAX_DEPTH = 2
 
 @ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
@@ -208,7 +210,7 @@ def points_from_triggers(profile, timeline, depth):
 
 def points_from_retweets(profile, timeline, depth):
     "Returns a fraction of the score of each retweeted author."
-    if depth > 0:
+    if depth > MAX_DEPTH:
         logging.warning(  # TODO: This should be info when in production.
             '{} exceeded max depth at {}'.format(
                 profile['screen_name'], depth))
