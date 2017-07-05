@@ -49,7 +49,8 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                      'score': score.score,
                      'grades': score.grades},
                     encoding='utf-8')
-                memcache.set('screen_name:' + screen_name, result, 3600)
+                memcache.set(
+                    'screen_name:' + screen_name, result, 3600)  # 1 hour
         self.response.out.write(result)
 
 
@@ -164,16 +165,15 @@ class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
 
 
 class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
-    "Updates old/outdated score entries. Called by the refresh cron job."
+    "Updates the oldest 5000 score entries. Called by the refresh cron job."
 
     def get(self):
         """
-        Selects oldest entries that are older than MAX_AGE_DAYS days and
-        refreshes them.
+        Selects 5000 oldest entries and refreshes them.
         """
         for score in ndb.gql(
-                'select screen_name, last_updated from Score '
-                'order by last_updated limit 10000'):
+                'select distinct screen_name, last_updated from Score '
+                'order by last_updated limit 5000'):
             refresh_score_by_screen_name(score.screen_name)
 
 
@@ -183,6 +183,7 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
     def get(self):
         "Naïve implementation."
         scanned = 0
+        deleted = 0
         previous = None
         gql = 'select twitter_id from Score '
         if memcache.get('cleanup_maxdupe') is not None:
@@ -197,13 +198,14 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
             memcache.set('cleanup_maxdupe', line.twitter_id)
             if previous == line.twitter_id:
                 line.key.delete()
+                deleted += 1
                 logging.info(
                     'Removing duplicate score for {} after scanning {}'.format(
                         line.twitter_id, scanned))
             else:
                 previous = line.twitter_id
         memcache.delete('cleanup_maxdups')
-        logging.warn('Cleanup completed')
+        logging.warn('Cleanup completed, {} dupes deleted'.format(deleted))
 
 
 class WorstHandler(webapp2.RequestHandler):

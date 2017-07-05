@@ -2,7 +2,7 @@ queue:
 
 # Scores the profiles that are requested directly through the REST API.
 - name: scoring-direct
-  rate: 60/m
+  rate: 1/s
   bucket_size: 200
   max_concurrent_requests: 2
   retry_parameters:
@@ -12,9 +12,9 @@ queue:
 
 # Scores the profiles nedded as part of the indirect scoring process (followers, retweets etc).
 - name: scoring-indirect
-  rate: 60/m
+  rate: 1/s
   bucket_size: 200
-  max_concurrent_requests: 2
+  max_concurrent_requests: 1
   retry_parameters:
     min_backoff_seconds: 40
     max_backoff_seconds: 7200
@@ -31,7 +31,7 @@ queue:
 
 # For refreshing outdated profile data.
 - name: refresh
-  rate: 10/s
+  rate: 1/s
   bucket_size: 100
   max_concurrent_requests: 1
 
