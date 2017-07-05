@@ -8,7 +8,9 @@ import webapp2
 
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
+from google.appengine.api.datastore_errors import Timeout
 from google.appengine.ext import ndb
+from google.appengine.runtime.apiproxy_errors import CancelledError
 
 from naziscore.models import Score
 from naziscore.scoring import (
@@ -185,6 +187,7 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
         scanned = 0
         deleted = 0
         previous = None
+        before = datetime.datetime.now()
         gql = 'select twitter_id from Score '
         if memcache.get('cleanup_maxdupe') is not None:
             gql += 'where twitter_id > {} '.format(
@@ -197,15 +200,30 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
             scanned += 1
             memcache.set('cleanup_maxdupe', line.twitter_id)
             if previous == line.twitter_id:
-                line.key.delete()
+                try:
+                    line.key.delete()
+                except Timeout:
+                    # We'll catch this one the next time.
+                    logging.warn('Recovered from a timeout')
+                except CancelledError:
+                    # We should bail out now to avoid an error.
+                    logging.warn('Bailing out after a CancelledError')
+                    return None
                 deleted += 1
                 logging.info(
-                    'Removing duplicate score for {} after scanning {}'.format(
-                        line.twitter_id, scanned))
+                    'Removing duplicate score for {} after scanning {}'
+                    ', deleting {}'.format(
+                        line.twitter_id, scanned, deleted))
+                if (datetime.datetime.now() - before).seconds > 590:
+                    # Bail out before we are kicked out
+                    logging.warn('Bailing out before timing out')
+                    return None
             else:
                 previous = line.twitter_id
         memcache.delete('cleanup_maxdups')
-        logging.warn('Cleanup completed, {} dupes deleted'.format(deleted))
+        logging.warn(
+            'Cleanup completed, {} dupes deleted of {} scanned'.format(
+                deleted, scanned))
 
 
 class WorstHandler(webapp2.RequestHandler):
