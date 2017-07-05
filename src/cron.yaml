@@ -1,7 +1,7 @@
 cron:
 - description: "Daily refresh"
   url: /_ah/cron/refresh
-  schedule: every day 00:00
+  schedule: every sunday 00:00
 
 - description: "Duplicate cleanup"
   url: /_ah/cron/cleanup
