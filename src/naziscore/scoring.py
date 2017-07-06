@@ -19,6 +19,9 @@ from naziscore.deplorable_constants import (
     TRIGGERS,
 )
 
+# How far we'll proactively go through the tree
+MAX_DEPTH = 2
+
 # Scoring
 POINTS_GABAI = 1
 
@@ -47,8 +50,6 @@ POINTS_NO_FOLLOWER = 3
 
 POINTS_NEW_ACCOUNT = 1
 
-# How far we'll proactively go through the tree
-MAX_DEPTH = 3
 
 @ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
