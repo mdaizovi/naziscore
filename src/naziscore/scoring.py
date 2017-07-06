@@ -20,7 +20,7 @@ from naziscore.deplorable_constants import (
 )
 
 # How far we'll proactively go through the tree
-MAX_DEPTH = 2
+MAX_DEPTH = 1
 
 # Scoring
 POINTS_GABAI = 1
