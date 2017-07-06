@@ -12,7 +12,7 @@ queue:
 
 # Scores the profiles nedded as part of the indirect scoring process (followers, retweets etc).
 - name: scoring-indirect
-  rate: 30/m
+  rate: 60/m
   bucket_size: 200
   max_concurrent_requests: 1
   retry_parameters:
