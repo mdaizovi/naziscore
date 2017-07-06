@@ -130,6 +130,8 @@ class CalculationHandler(webapp2.RequestHandler):
                 screen_name = json.loads(profile)['screen_name']
                 twitter_id = json.loads(profile)['id']
                 grades = calculated_score(profile, timeline, depth)
+                # TODO: Find a way to prevent duplication. Having a dedup cron
+                # task is... embarrassing.
                 Score(screen_name=screen_name,
                       twitter_id=twitter_id,
                       grades=grades,
@@ -196,30 +198,32 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
                 'starting cleanup from {}'.format(
                     memcache.get('cleanup_maxdupe')))
         gql += ' order by twitter_id'
-        for line in ndb.gql(gql):
-            scanned += 1
-            memcache.set('cleanup_maxdupe', line.twitter_id)
-            if previous == line.twitter_id:
-                try:
+        try:
+            for line in ndb.gql(gql):
+                scanned += 1
+                memcache.set('cleanup_maxdupe', line.twitter_id)
+                if previous == line.twitter_id:
                     line.key.delete()
-                except Timeout:
-                    # We'll catch this one the next time.
-                    logging.warn('Recovered from a timeout')
-                except CancelledError:
-                    # We should bail out now to avoid an error.
-                    logging.warn('Bailing out after a CancelledError')
-                    return None
-                deleted += 1
-                logging.info(
-                    'Removing duplicate score for {} after scanning {}'
-                    ', deleting {}'.format(
-                        line.twitter_id, scanned, deleted))
+                    deleted += 1
+                    logging.info(
+                        'Removing duplicate score for {} after scanning {}'
+                        ', deleting {}'.format(
+                            line.twitter_id, scanned, deleted))
                 if (datetime.datetime.now() - before).seconds > 590:
                     # Bail out before we are kicked out
                     logging.warn('Bailing out before timing out')
                     return None
-            else:
-                previous = line.twitter_id
+                else:
+                    previous = line.twitter_id
+        except Timeout:
+            # We'll catch this one the next time.
+            logging.warn('Recovered from a timeout')
+        except CancelledError:
+            # We should bail out now to avoid an error.
+            logging.warn('Bailing out after a CancelledError')
+            return None
+        # If we got to this point, we are exiting normally after finishing
+        # going over all scores. We can delete the bookmark from the cache.
         memcache.delete('cleanup_maxdups')
         logging.warn(
             'Cleanup completed, {} dupes deleted of {} scanned'.format(
