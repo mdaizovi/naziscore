@@ -225,7 +225,7 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
         # If we got to this point, we are exiting normally after finishing
         # going over all scores. We can delete the bookmark from the cache.
         if scanned == 0:
-            memcache.delete('cleanup_maxdups')
+            memcache.delete('cleanup_maxdupe')
             logging.warn(
                 'Cleanup completed, {} dupes deleted of {} scanned'.format(
                     deleted, scanned))
