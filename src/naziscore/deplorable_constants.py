@@ -435,6 +435,7 @@ FAKE_NEWS_WEBSITES = (
     'foodbabe.com',
     'foreignpolicyjournal.com',
     'fort-russ.com',
+    'forward.com',
     'fourwinds10.net',
     'fprnradio.com',
     'freakoutnation.com',
