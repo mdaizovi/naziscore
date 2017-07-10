@@ -197,7 +197,7 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
             logging.warn(
                 'starting cleanup from {}'.format(
                     memcache.get('cleanup_maxdupe')))
-        gql += ' order by twitter_id'
+        gql += ' order by twitter_id, last_updated'
         try:
             for line in ndb.gql(gql):
                 scanned += 1
