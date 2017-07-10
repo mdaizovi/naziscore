@@ -84,9 +84,12 @@ class ScoreByIdHandler(webapp2.RequestHandler):
 
 
 class CalculationHandler(webapp2.RequestHandler):
-    """
-    Makes requests to the Twitter API to retrieve the score. Called from the
+    """Main scoring entry point, tries to get JSON from memcache and, if that
+    fails, tries to get it from the datastore. If that fails or the result is
+    too old, schedule a recalculation through the queues while returning
+    present data if found or a no-data JSON response if not. Called from the
     task queues.
+
     """
     @ndb.toplevel
     def post(self):
