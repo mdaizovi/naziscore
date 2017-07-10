@@ -2,7 +2,7 @@ queue:
 
 # Scores the profiles that are requested directly through the REST API.
 - name: scoring-direct
-  rate: 60/m
+  rate: 52/m
   bucket_size: 200
   max_concurrent_requests: 10
   retry_parameters:
