@@ -176,12 +176,19 @@ class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
 
     def get(self):
         """
-        Selects 5000 oldest entries and refreshes them.
+        Selects the oldest entries oilder than 10 days and queues them for
+        refresh.
         """
-        for score in ndb.gql(
-                'select distinct screen_name, last_updated from Score '
-                'order by last_updated limit 5000'):
+        before = datetime.datetime.now()
+        for score in Score.query(
+                Score.last_updated <
+                datetime.datetime.now() - datetime.timedelta(days=10)).order(
+                    Score.last_updated):
             refresh_score_by_screen_name(score.screen_name)
+            if (datetime.datetime.now() - before).seconds > 590:
+                    # Bail out before we are kicked out
+                    logging.warn('Bailing out before timing out')
+                    return None
 
 
 class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
