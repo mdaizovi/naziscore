@@ -172,7 +172,7 @@ class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
 
 
 class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
-    "Updates the oldest 5000 score entries. Called by the refresh cron job."
+    "Updates the oldest score entries. Called by the refresh cron job."
 
     def get(self):
         """
