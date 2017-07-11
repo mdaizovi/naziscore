@@ -6,9 +6,11 @@ import logging
 import os
 
 from inspect import isfunction
-from google.appengine.ext import ndb
+from itertools import chain
 
+from google.appengine.ext import ndb
 from google.appengine.api import taskqueue
+
 from naziscore.models import Score
 
 from naziscore.deplorable_constants import (
@@ -164,6 +166,8 @@ def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
     "Returns the score according to the trigger count in various elements."
     result = 0
     tweets = [t['text'] for t in timeline]  # Could use ['status']['text'].
+    retweets = [t['retweeted_statu']['text'] for t in timeline
+                if 'retweeted_statu' in t]
     for trigger in triggers:
         # Check the profile
         result += (points_screen_name
@@ -172,7 +176,7 @@ def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
         result += (points_description
                    if trigger in profile['description'].lower() else 0)
         # Check the tweets themselves
-        for tweet in tweets:
+        for tweet in chain(tweets, retweets):
             result += points_tweet if trigger in tweet.lower() else 0
     return result
 
