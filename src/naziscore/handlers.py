@@ -180,15 +180,23 @@ class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
         refresh.
         """
         before = datetime.datetime.now()
-        for score in Score.query(
-                Score.last_updated <
-                datetime.datetime.now() - datetime.timedelta(days=10)).order(
-                    Score.last_updated):
-            refresh_score_by_screen_name(score.screen_name)
-            if (datetime.datetime.now() - before).seconds > 590:
-                    # Bail out before we are kicked out
-                    logging.warn('Bailing out before timing out')
-                    return None
+        try:
+            for score in Score.query(
+                    Score.last_updated < datetime.datetime.now()
+                    - datetime.timedelta(days=1)
+            ).order(Score.last_updated).iter(
+                    limit=1000, projection=(Score.screen_name)):
+
+                logging.info(
+                    'Scheduling refresh for {}'.format(score.screen_name))
+                refresh_score_by_screen_name(score.screen_name)
+                if (datetime.datetime.now() - before).seconds > 590:
+                        # Bail out before we are kicked out
+                        logging.warn('Bailing out before timing out')
+                        return None
+        except Timeout:
+            # We'll catch this one the next time.
+            logging.warn('Recovered from a timeout')
 
 
 class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
