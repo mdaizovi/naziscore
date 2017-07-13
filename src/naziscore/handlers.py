@@ -202,6 +202,7 @@ class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
 class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
     "Removes scores with repeated twitter_id. Keep the first."
 
+    @ndb.toplevel
     def get(self):
         "Naïve implementation."
         scanned = 0
@@ -221,7 +222,7 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
                 scanned += 1
                 memcache.set('cleanup_maxdupe', line.twitter_id)
                 if previous == line.twitter_id:
-                    line.key.delete()
+                    line.key.delete_async()
                     deleted += 1
                     logging.info(
                         'Removing duplicate score for {} after scanning {}'
