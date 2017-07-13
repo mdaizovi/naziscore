@@ -21,7 +21,18 @@ from naziscore.deplorable_constants import (
     TRIGGERS,
 )
 
-# How far we'll proactively go through the tree
+# How much of the tree will be scanned. We stop at depth >= MAX_DEPTH
+# +-----+----------------------------------------------+
+# |Depth|Meaning                                       |
+# +-----+----------------------------------------------+
+# |  0  |We are scoring this from a direct API request.|
+# +-----+----------------------------------------------+
+# |  1  |This user is being scored because it was found|
+# |     |in the feed of a directly scanned user.       |
+# +-----+----------------------------------------------+
+# |  2+ |This user was found on an indirectly scanned  |
+# |     |user's feed.                                  |
+# +-----+----------------------------------------------+
 MAX_DEPTH = 1
 
 # Scoring
@@ -217,7 +228,7 @@ def points_from_triggers(profile, timeline, depth):
 
 def points_from_retweets(profile, timeline, depth):
     "Returns a fraction of the score of each retweeted author."
-    if depth > MAX_DEPTH:
+    if depth >= MAX_DEPTH:
         logging.warning(  # TODO: This should be info when in production.
             '{} exceeded max depth at {}'.format(
                 profile['screen_name'], depth))
