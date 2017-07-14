@@ -52,7 +52,7 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                      'grades': score.grades},
                     encoding='utf-8')
                 memcache.set(
-                    'screen_name:' + screen_name, result, 3600)  # 1 hour
+                    'screen_name:' + screen_name, result, 86400)  # 1 day
         self.response.out.write(result)
 
 
