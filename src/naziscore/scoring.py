@@ -163,7 +163,10 @@ def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
                   points_description, points_tweet):
     "Returns the score according to the trigger count in various elements."
     result = 0
-    tweets = [t['text'] for t in timeline]  # Could use ['status']['text'].
+    tweets = [
+        (t['text'],
+        [u['url'] for u in t['entities']['urls']])
+        for t in timeline]  # Could use ['status']['text'].
     for trigger in triggers:
         # Check the profile
         result += (points_screen_name
@@ -172,7 +175,9 @@ def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
         result += (points_description
                    if trigger in profile['description'].lower() else 0)
         # Check the tweets themselves
-        for tweet in tweets:
+        for tweet, urls in tweets:
+            for url in urls:
+                tweet = tweet.replace(url, '')  # Remove the URLs
             result += points_tweet if trigger in tweet.lower() else 0
     return result
 
