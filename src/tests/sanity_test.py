@@ -15,8 +15,6 @@ from google.appengine.api import memcache
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 
-from naziscore.handlers import get_access_token
-
 
 # If your project has a src/main.py file, it'll check if it imports
 try:
@@ -46,25 +44,6 @@ class SanityTest(unittest.TestCase):
         we need to work
         """
         self.assertTrue(True)
-
-    def test_get_token(self):
-        x = get_access_token()
-        import ipdb; ipdb.set_trace()
-        self.assertTrue(True)
-
-
-if TEST_HANDLER:
-    class HandlerTest(unittest.TestCase):
-        """This test only triggers if we are testing for the sample
-        application, not your own."""
-
-        def setUp(self):
-            self.testapp = webtest.TestApp(main.application)
-
-        def test_sample_request(self):
-            """Test a GET / and check a 200 status"""
-            response = self.testapp.get('/')
-            self.assertEqual(response.status_int, 200)
 
 
 class MemcacheTest(unittest.TestCase):
