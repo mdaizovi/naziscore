@@ -52,7 +52,7 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                      'grades': score.grades},
                     encoding='utf-8')
                 memcache.set(
-                    'screen_name:' + screen_name, result, 3600)  # 1 hour
+                    'screen_name:' + screen_name, result, 86400)  # 1 day
         self.response.out.write(result)
 
 
@@ -172,21 +172,37 @@ class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
 
 
 class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
-    "Updates the oldest 5000 score entries. Called by the refresh cron job."
+    "Updates the oldest score entries. Called by the refresh cron job."
 
     def get(self):
         """
-        Selects 5000 oldest entries and refreshes them.
+        Selects the oldest entries oilder than 10 days and queues them for
+        refresh.
         """
-        for score in ndb.gql(
-                'select distinct screen_name, last_updated from Score '
-                'order by last_updated limit 5000'):
-            refresh_score_by_screen_name(score.screen_name)
+        before = datetime.datetime.now()
+        try:
+            for score in Score.query(
+                    Score.last_updated < datetime.datetime.now()
+                    - datetime.timedelta(days=1)
+            ).order(Score.last_updated).iter(
+                    limit=1000, projection=(Score.screen_name)):
+
+                logging.info(
+                    'Scheduling refresh for {}'.format(score.screen_name))
+                refresh_score_by_screen_name(score.screen_name)
+                if (datetime.datetime.now() - before).seconds > 590:
+                        # Bail out before we are kicked out
+                        logging.warn('Bailing out before timing out')
+                        return None
+        except Timeout:
+            # We'll catch this one the next time.
+            logging.warn('Recovered from a timeout')
 
 
 class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
     "Removes scores with repeated twitter_id. Keep the first."
 
+    @ndb.toplevel
     def get(self):
         "Naïve implementation."
         scanned = 0
@@ -206,7 +222,7 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
                 scanned += 1
                 memcache.set('cleanup_maxdupe', line.twitter_id)
                 if previous == line.twitter_id:
-                    line.key.delete()
+                    line.key.delete_async()
                     deleted += 1
                     logging.info(
                         'Removing duplicate score for {} after scanning {}'

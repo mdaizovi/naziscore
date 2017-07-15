@@ -6,9 +6,11 @@ import logging
 import os
 
 from inspect import isfunction
-from google.appengine.ext import ndb
+from itertools import chain
 
+from google.appengine.ext import ndb
 from google.appengine.api import taskqueue
+
 from naziscore.models import Score
 
 from naziscore.deplorable_constants import (
@@ -19,7 +21,18 @@ from naziscore.deplorable_constants import (
     TRIGGERS,
 )
 
-# How far we'll proactively go through the tree
+# How much of the tree will be scanned. We stop at depth >= MAX_DEPTH
+# +-----+----------------------------------------------+
+# |Depth|Meaning                                       |
+# +-----+----------------------------------------------+
+# |  0  |We are scoring this from a direct API request.|
+# +-----+----------------------------------------------+
+# |  1  |This user is being scored because it was found|
+# |     |in the feed of a directly scanned user.       |
+# +-----+----------------------------------------------+
+# |  2+ |This user was found on an indirectly scanned  |
+# |     |user's feed.                                  |
+# +-----+----------------------------------------------+
 MAX_DEPTH = 1
 
 # Scoring
@@ -40,10 +53,10 @@ POINTS_TRIGGER_NAME = 2
 POINTS_TRIGGER_DESCRIPTION = 1
 POINTS_TRIGGER_TWEET = 1
 
-POINTS_RETWEET_FRACTION = 0.125
+POINTS_RETWEET_FRACTION = 0.05
 
-POINTS_FAKE_NEWS = 0.125
-POINTS_ACTUAL_NEWS = - POINTS_FAKE_NEWS
+POINTS_FAKE_NEWS = 0.25
+POINTS_ACTUAL_NEWS = - POINTS_FAKE_NEWS / 2  # Forgiveness is twice as hard.
 
 POINTS_FEW_FOLLOWERS = 1
 POINTS_NO_FOLLOWER = 3
@@ -167,6 +180,11 @@ def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
         (t['text'],
         [u['url'] for u in t['entities']['urls']])
         for t in timeline]  # Could use ['status']['text'].
+    retweets = [
+        (t['retweeted_statu']['text'],
+        [u['url'] for u in t['retweeted_statu']['entities']['urls']])
+        for t in timeline
+        if 'retweeted_statu' in t]
     for trigger in triggers:
         # Check the profile
         result += (points_screen_name
@@ -175,7 +193,7 @@ def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
         result += (points_description
                    if trigger in profile['description'].lower() else 0)
         # Check the tweets themselves
-        for tweet, urls in tweets:
+        for tweet, urls in chain(tweets, retweets):
             for url in urls:
                 tweet = tweet.replace(url, '')  # Remove the URLs
             result += points_tweet if trigger in tweet.lower() else 0
@@ -218,7 +236,7 @@ def points_from_triggers(profile, timeline, depth):
 
 def points_from_retweets(profile, timeline, depth):
     "Returns a fraction of the score of each retweeted author."
-    if depth > MAX_DEPTH:
+    if depth >= MAX_DEPTH:
         logging.warning(  # TODO: This should be info when in production.
             '{} exceeded max depth at {}'.format(
                 profile['screen_name'], depth))
