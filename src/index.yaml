@@ -19,6 +19,12 @@ indexes:
   properties:
   - name: score
     direction: desc
+  - name: hashtags
+
+- kind: Score
+  properties:
+  - name: score
+    direction: desc
   - name: screen_name
   - name: twitter_id
 

@@ -274,9 +274,12 @@ class WorstHashtagHandler(webapp2.RequestHandler):
         "Naïve implementation."
         response_writer = csv.writer(
             self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+        c = Counter()
         hashtags = []
-        for s in Score.query().order(-Score.score).fetch(100):
-            hashtags += [h.lower() for h in s.hashtags]
-        for tag, tag_count in Counter(hashtags).most_common(100):
+        for s in Score.query().order(-Score.score).iter(
+                    limit=5000, projection=(Score.hashtags)):
+            if s.hashtags is not None:
+                c.update((h.lower() for h in s.hashtags))
+        for tag, tag_count in c.most_common(100):
             response_writer.writerow(
                 [tag, tag_count])
