@@ -6,6 +6,8 @@ import json
 import logging
 import webapp2
 
+from collections import Counter
+
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 from google.appengine.api.datastore_errors import Timeout
@@ -263,3 +265,18 @@ class WorstHandler(webapp2.RequestHandler):
                 'from Score order by score desc limit 20000'):
             response_writer.writerow(
                 [line.screen_name, line.twitter_id, line.score])
+
+
+class WorstHashtagHandler(webapp2.RequestHandler):
+    "Gets the hashtags most used by the worst offenders as a CSV."
+
+    def get(self):
+        "Naïve implementation."
+        response_writer = csv.writer(
+            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+        hashtags = []
+        for s in Score.query().order(-Score.score).fetch(100):
+            hashtags += [h.lower() for h in s.hashtags]
+        for tag, tag_count in Counter(hashtags).most_common(100):
+            response_writer.writerow(
+                [tag, tag_count])
