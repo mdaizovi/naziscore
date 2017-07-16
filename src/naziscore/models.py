@@ -38,14 +38,14 @@ class Score(ndb.Model):
         if self.timeline_text is not None:
             timeline = json.loads(self.timeline_text)
             if 'error' not in timeline:
-                return list(
+                return list(set(
                     itertools.chain(
                         *['#' + hashtag['text'] if 'text' in hashtag
                           else ['#' + ht['text'] for ht in hashtag]
                           for hashtag in [
                                   tweet['entities']['hashtags']
                                   for tweet in timeline
-                                  if tweet['entities']['hashtags'] != []]]))
+                                  if tweet['entities']['hashtags'] != []]])))
         return None
 
     def get_websites(self):
