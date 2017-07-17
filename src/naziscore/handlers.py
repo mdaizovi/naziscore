@@ -140,6 +140,18 @@ class CalculationHandler(webapp2.RequestHandler):
                 elif 'User not found.' in e.message:
                     logging.warning('{} does not exist'.format(
                         screen_name if screen_name else twitter_id))
+                    if screen_name is not None:
+                        ndb.delete_multi(
+                            Score.query(
+                                Score.screen_name == screen_name).fetch(
+                                    keys_only=True))
+                    elif twitter_id is not None:
+                        ndb.delete_multi(
+                            Score.query(
+                                Score.twitter_id == twitter_id).fetch(
+                                    keys_only=True))
+                    logging.info('Deleted old score for {}'.format(
+                         screen_name if screen_name else twitter_id))
                 else:
                     raise  # Will retry later.
             if profile is not None:
