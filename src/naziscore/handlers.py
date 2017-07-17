@@ -30,6 +30,7 @@ MAX_AGE_DAYS = 7
 
 
 class ScoreByNameHandler(webapp2.RequestHandler):
+    "Returns the score JSON for a given screen_name."
 
     @ndb.toplevel
     def get(self, screen_name):
@@ -59,6 +60,7 @@ class ScoreByNameHandler(webapp2.RequestHandler):
 
 
 class ScoreByIdHandler(webapp2.RequestHandler):
+    "Returns the score JSON object for a given twitter id."
 
     @ndb.toplevel
     def get(self, twitter_id):
