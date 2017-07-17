@@ -45,6 +45,10 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                 result = json.dumps(
                     {'screen_name': screen_name,
                      'last_updated': None}, encoding='utf-8')
+                memcache.set(
+                    'screen_name:' + screen_name, result, 5)  # 5 seconds
+                expires_date = (datetime.datetime.utcnow()
+                                + datetime.timedelta(seconds=5))
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
@@ -56,9 +60,10 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                     encoding='utf-8')
                 memcache.set(
                     'screen_name:' + screen_name, result, 86400)  # 1 day
-        expires_date = datetime.datetime.utcnow() + datetime.timedelta(days=1)
-        expires_str = expires_date.strftime("%d %b %Y %H:%M:%S GMT")
-        self.response.headers.add_header("Expires", expires_str)
+                expires_date = (datetime.datetime.utcnow()
+                                + datetime.timedelta(1))
+            expires_str = expires_date.strftime("%d %b %Y %H:%M:%S GMT")
+            self.response.headers.add_header("Expires", expires_str)
         self.response.out.write(result)
 
 
@@ -78,6 +83,10 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                 result = json.dumps(
                     {'twitter_id': twitter_id,
                      'last_updated': None}, encoding='utf-8')
+                memcache.set(
+                    'twitter_id:{}'.format(twitter_id), result, 5)  # 5 seconds
+                expires_date = (datetime.datetime.utcnow()
+                                + datetime.timedelta(seconds=5))
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
@@ -86,10 +95,11 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                      'last_updated': score.last_updated.isoformat(),
                      'score': score.score,
                      'grades': score.grades}, encoding='utf-8')
-                memcache.set('twitter_id:{}'.format(twitter_id), result, 3600)
-        expires_date = datetime.datetime.utcnow() + datetime.timedelta(1)
-        expires_str = expires_date.strftime("%d %b %Y %H:%M:%S GMT")
-        self.response.headers.add_header("Expires", expires_str)
+                memcache.set('twitter_id:{}'.format(twitter_id), result, 86400)
+                expires_date = (datetime.datetime.utcnow()
+                                + datetime.timedelta(1))
+            expires_str = expires_date.strftime("%d %b %Y %H:%M:%S GMT")
+            self.response.headers.add_header("Expires", expires_str)
         self.response.out.write(result)
 
 
