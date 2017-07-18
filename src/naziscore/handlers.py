@@ -12,7 +12,9 @@ from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 from google.appengine.api.datastore_errors import Timeout
 from google.appengine.ext import ndb
-from google.appengine.runtime.apiproxy_errors import CancelledError
+from google.appengine.runtime.apiproxy_errors import (
+    CancelledError,
+    OverQuotaError)
 
 from naziscore.models import Score
 from naziscore.scoring import (
@@ -275,6 +277,8 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
             # We should bail out now to avoid an error.
             logging.warn('Bailing out after a CancelledError')
             return None
+        except OverQuotaError:
+            logging.critical('We are over quota.');
         # If we got to this point, we are exiting normally after finishing
         # going over all scores. We can delete the bookmark from the cache.
         if scanned == 0:
