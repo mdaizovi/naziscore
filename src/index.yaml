@@ -30,11 +30,5 @@ indexes:
 
 - kind: Score
   properties:
-  - name: screen_name_lower
-  - name: last_updated
-    direction: desc
-
-- kind: Score
-  properties:
   - name: twitter_id
   - name: last_updated
