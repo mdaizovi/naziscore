@@ -12,7 +12,9 @@ from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 from google.appengine.api.datastore_errors import Timeout
 from google.appengine.ext import ndb
-from google.appengine.runtime.apiproxy_errors import CancelledError
+from google.appengine.runtime.apiproxy_errors import (
+    CancelledError,
+    OverQuotaError)
 
 from naziscore.models import Score
 from naziscore.scoring import (
@@ -30,6 +32,7 @@ MAX_AGE_DAYS = 7
 
 
 class ScoreByNameHandler(webapp2.RequestHandler):
+    "Returns the score JSON for a given screen_name."
 
     @ndb.toplevel
     def get(self, screen_name):
@@ -44,6 +47,10 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                 result = json.dumps(
                     {'screen_name': screen_name,
                      'last_updated': None}, encoding='utf-8')
+                memcache.set(
+                    'screen_name:' + screen_name, result, 5)  # 5 seconds
+                expires_date = (datetime.datetime.utcnow()
+                                + datetime.timedelta(seconds=5))
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
@@ -55,10 +62,15 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                     encoding='utf-8')
                 memcache.set(
                     'screen_name:' + screen_name, result, 86400)  # 1 day
+                expires_date = (datetime.datetime.utcnow()
+                                + datetime.timedelta(1))
+            expires_str = expires_date.strftime("%d %b %Y %H:%M:%S GMT")
+            self.response.headers.add_header("Expires", expires_str)
         self.response.out.write(result)
 
 
 class ScoreByIdHandler(webapp2.RequestHandler):
+    "Returns the score JSON object for a given twitter id."
 
     @ndb.toplevel
     def get(self, twitter_id):
@@ -73,6 +85,10 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                 result = json.dumps(
                     {'twitter_id': twitter_id,
                      'last_updated': None}, encoding='utf-8')
+                memcache.set(
+                    'twitter_id:{}'.format(twitter_id), result, 5)  # 5 seconds
+                expires_date = (datetime.datetime.utcnow()
+                                + datetime.timedelta(seconds=5))
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
@@ -81,7 +97,11 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                      'last_updated': score.last_updated.isoformat(),
                      'score': score.score,
                      'grades': score.grades}, encoding='utf-8')
-                memcache.set('twitter_id:{}'.format(twitter_id), result, 3600)
+                memcache.set('twitter_id:{}'.format(twitter_id), result, 86400)
+                expires_date = (datetime.datetime.utcnow()
+                                + datetime.timedelta(1))
+            expires_str = expires_date.strftime("%d %b %Y %H:%M:%S GMT")
+            self.response.headers.add_header("Expires", expires_str)
         self.response.out.write(result)
 
 
@@ -122,6 +142,19 @@ class CalculationHandler(webapp2.RequestHandler):
                 elif 'User not found.' in e.message:
                     logging.warning('{} does not exist'.format(
                         screen_name if screen_name else twitter_id))
+                    # Delete previous scores, if they exist.
+                    if screen_name is not None:
+                        ndb.delete_multi(
+                            Score.query(
+                                Score.screen_name == screen_name).fetch(
+                                    keys_only=True))
+                    elif twitter_id is not None:
+                        ndb.delete_multi(
+                            Score.query(
+                                Score.twitter_id == twitter_id).fetch(
+                                    keys_only=True))
+                    logging.info('Deleted old score for {}'.format(
+                         screen_name if screen_name else twitter_id))
                 else:
                     raise  # Will retry later.
             if profile is not None:
@@ -137,7 +170,8 @@ class CalculationHandler(webapp2.RequestHandler):
                 grades = calculated_score(profile, timeline, depth)
                 # TODO: Find a way to prevent duplication. Having a dedup cron
                 # task is... embarrassing.
-                Score(screen_name=screen_name,
+                Score(key=ndb.Key(Score, screen_name.lower()),
+                      screen_name=screen_name,
                       twitter_id=twitter_id,
                       grades=grades,
                       profile_text=profile,
@@ -243,6 +277,8 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
             # We should bail out now to avoid an error.
             logging.warn('Bailing out after a CancelledError')
             return None
+        except OverQuotaError:
+            logging.critical('We are over quota.');
         # If we got to this point, we are exiting normally after finishing
         # going over all scores. We can delete the bookmark from the cache.
         if scanned == 0:
