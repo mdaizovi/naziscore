@@ -145,7 +145,8 @@ class CalculationHandler(webapp2.RequestHandler):
                 grades = calculated_score(profile, timeline, depth)
                 # TODO: Find a way to prevent duplication. Having a dedup cron
                 # task is... embarrassing.
-                Score(screen_name=screen_name,
+                Score(key=ndb.Key(Score, screen_name.lower()),
+                      screen_name=screen_name,
                       twitter_id=twitter_id,
                       grades=grades,
                       profile_text=profile,
