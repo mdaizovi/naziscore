@@ -67,7 +67,7 @@ POINTS_NEW_ACCOUNT = 1
 @ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
     # Gets the most recently updated copy, if duplicated.
-    score = yield ndb.Key(Score, screen_name).get()
+    score = yield ndb.Key(Score, screen_name).get_async()
     if score is None:
         try:
             yield taskqueue.Task(
