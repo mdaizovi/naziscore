@@ -69,6 +69,7 @@ def get_score_by_screen_name(screen_name, depth):
     # Gets the most recently updated copy, if duplicated.
     score = yield ndb.Key(Score, screen_name).get_async()
     if score is None:
+        # If we don't have one, we need to calculate one.
         try:
             yield taskqueue.Task(
                 name=('{}_{}'.format(
