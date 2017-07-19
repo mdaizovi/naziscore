@@ -12,7 +12,9 @@ from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 from google.appengine.api.datastore_errors import Timeout
 from google.appengine.ext import ndb
-from google.appengine.runtime.apiproxy_errors import CancelledError
+from google.appengine.runtime.apiproxy_errors import (
+    CancelledError,
+    OverQuotaError)
 
 from naziscore.models import Score
 from naziscore.scoring import (
@@ -264,16 +266,26 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
                             line.twitter_id, scanned, deleted))
                 if (datetime.datetime.now() - before).seconds > 590:
                     # Bail out before we are kicked out
-                    logging.warn('Bailing out before timing out')
+                    logging.warn(
+                        'Bailing out before timing out after {} scanned '
+                        'and {} deleted'.format(scanned, deleted))
                     return None
                 else:
                     previous = line.twitter_id
         except Timeout:
             # We'll catch this one the next time.
-            logging.warn('Recovered from a timeout')
+            logging.warn(
+                'Recovered from a timeout after {} scanned '
+                'and {} deleted'.format(scanned, deleted))
         except CancelledError:
             # We should bail out now to avoid an error.
-            logging.warn('Bailing out after a CancelledError')
+            logging.warn(
+                'Bailing out after a CancelledError, after {} scanned '
+                'and {} deleted'.format(scanned, deleted))
+            return None
+        except OverQuotaError:
+            logging.critical('We are over quota after {} scanned '
+                'and {} deleted'.format(scanned, deleted))
             return None
         # If we got to this point, we are exiting normally after finishing
         # going over all scores. We can delete the bookmark from the cache.
