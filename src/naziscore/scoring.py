@@ -85,13 +85,18 @@ def get_score_by_screen_name(screen_name, depth):
                     'depth': depth
                 }).add_async(
                     'scoring-direct' if depth == 0 else 'scoring-indirect')
+            # TODO: If we add it to the scoring-direct queue, we should remove
+            # the corresponding task from the scoring-indirect queue at this
+            # point.
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
             logging.warning(
                 'Fetch for {} already scheduled'.format(screen_name))
         except taskqueue.TombstonedTaskError:
-            # This task is too recent. We shouldn't try again so soon.
+            # This task is too recent. We shouldn't try again so
+            # soon. Thombstoning won't happen across different deploys, as the
+            # task name has the deploy timestamp on it.
             logging.warning('Fetch for {} tombstoned'.format(screen_name))
         raise ndb.Return(None)
     else:
@@ -112,13 +117,18 @@ def get_score_by_twitter_id(twitter_id, depth):
                     'depth': depth
                 }).add_async(
                     'scoring-direct' if depth == 0 else 'scoring-indirect')
+            # TODO: If we add it to the scoring-direct queue, we should remove
+            # the corresponding task from the scoring-indirect queue at this
+            # point.
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
             logging.warning(
                 'Fetch for {} already scheduled'.format(twitter_id))
         except taskqueue.TombstonedTaskError:
-            # This task is too recent. We shouldn't try again so soon.
+            # This task is too recent. We shouldn't try again so
+            # soon. Thombstoning won't happen across different deploys, as the
+            # task name has the deploy timestamp on it.
             logging.warning('Fetch for {} tombstoned'.format(twitter_id))
         raise ndb.Return(None)
     else:
