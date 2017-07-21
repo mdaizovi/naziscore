@@ -50,7 +50,7 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                 memcache.set(
                     'screen_name:' + screen_name, result, 5)  # 5 seconds
                 expires_date = (datetime.datetime.utcnow()
-                                + datetime.timedelta(seconds=5))
+                                + datetime.timedelta(seconds=2))
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
