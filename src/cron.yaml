@@ -1,10 +1,10 @@
 cron:
-- description: "Daily refresh"
+- description: "Weekly refresh"
   url: /_ah/cron/refresh
-  schedule: everyday 00:00
+  schedule: every sunday 00:00
 
 - description: "Duplicate cleanup"
   url: /_ah/cron/cleanup
-  schedule: every 10 minutes
+  schedule: every 60 minutes
   retry_parameters:
     job_retry_limit: 0
