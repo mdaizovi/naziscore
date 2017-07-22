@@ -68,11 +68,11 @@ class Score(ndb.Model):
     last_updated = ndb.DateTimeProperty(auto_now=True)
     score = ndb.ComputedProperty(
         lambda self: float(sum([self.grades[k] for k in self.grades])))
-    grades = ndb.JsonProperty()
+    grades = ndb.JsonProperty(default={})
 
     # For refreshing scores without hitting the APIs
-    profile_text = ndb.TextProperty()
-    timeline_text = ndb.TextProperty()
+    profile_text = ndb.TextProperty(default='{}')
+    timeline_text = ndb.TextProperty(default='[]')
 
     # For analytics
     follower_count = ndb.ComputedProperty(get_follower_count)
