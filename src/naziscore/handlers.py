@@ -91,7 +91,7 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                 memcache.set(
                     'twitter_id:{}'.format(twitter_id), result, 5)  # 5 seconds
                 expires_date = (datetime.datetime.utcnow()
-                                + datetime.timedelta(seconds=5))
+                                + datetime.timedelta(seconds=60))
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
