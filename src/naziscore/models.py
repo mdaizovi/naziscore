@@ -32,7 +32,7 @@ class Score(ndb.Model):
 
     def get_follower_count(self):
         profile = json.loads(self.profile_text)
-        return profile['followers_count']
+        return profile.get('followers_count')
 
     def get_hashtags(self):
         if self.timeline_text is not None:
