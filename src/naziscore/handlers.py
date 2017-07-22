@@ -8,13 +8,16 @@ import webapp2
 
 from collections import Counter
 
-from google.appengine.api import memcache
-from google.appengine.api import urlfetch
+from google.appengine.api import (
+    memcache,
+    urlfetch
+)
 from google.appengine.api.datastore_errors import Timeout
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import (
     CancelledError,
-    OverQuotaError)
+    OverQuotaError
+)
 
 from naziscore.models import Score
 from naziscore.scoring import (
