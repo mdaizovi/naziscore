@@ -169,11 +169,14 @@ class CalculationHandler(webapp2.RequestHandler):
                 # We need to add a new one, but only if we got something back
                 # from the Twitter API.
                 screen_name = json.loads(profile)['screen_name']
+                key_name = (
+                    '.' + screen_name.lower() if screen_name.startswith('__')
+                    else screen_name.lower())
                 twitter_id = json.loads(profile)['id']
                 grades = calculated_score(profile, timeline, depth)
                 # TODO: Find a way to prevent duplication. Having a dedup cron
                 # task is... embarrassing.
-                Score(key=ndb.Key(Score, screen_name.lower()),
+                Score(key=ndb.Key(Score, key_name),
                       screen_name=screen_name,
                       twitter_id=twitter_id,
                       grades=grades,

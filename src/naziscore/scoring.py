@@ -68,8 +68,10 @@ POINTS_NEW_ACCOUNT = 1
 @ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
     # Gets the most recently updated copy, if duplicated.
+    key_name = (
+        '.' + screen_name if screen_name.startswith('__') else screen_name)
     try:
-        score = yield ndb.Key(Score, screen_name).get_async()
+        score = yield ndb.Key(Score, key_name).get_async()
     except OverQuotaError:
         logging.critical('We are over quota.');
         raise ndb.Return(None)
