@@ -5,6 +5,6 @@ cron:
 
 - description: "Duplicate cleanup"
   url: /_ah/cron/cleanup
-  schedule: every 60 minutes
+  schedule: every sunday 02:00 
   retry_parameters:
     job_retry_limit: 0
