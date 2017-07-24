@@ -211,6 +211,7 @@ class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
             pass
 
 
+# TODO: Refresh should only be done as records are recalled.
 class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
     "Updates the oldest score entries. Called by the refresh cron job."
 
@@ -239,6 +240,11 @@ class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
             logging.warn('Recovered from a timeout')
 
 
+# TODO: Cleanup should no longer be about duplicates, but about removing
+# records that were not updated in the past 15 days (or so). We should also
+# consider getting rid of zero scores older than 10 days (because queues hold
+# names for about 9 days). Since they are automatically refreshed after 10
+# days, anything older than that has not been needed in at least 5 days.
 class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
     "Removes scores with repeated twitter_id. Keep the first."
 
