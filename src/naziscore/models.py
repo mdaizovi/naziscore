@@ -14,7 +14,11 @@ class Score(ndb.Model):
 
     def get_average_interval(self):
         if self.timeline_text is not None:
-            timeline = json.loads(self.timeline_text)
+            # TODO: When all information in timeline_text is JSON, remove this
+            # check
+            timeline = (json.loads(self.timeline_text)
+                        if isinstance(self.timeline_text, str)
+                        else self.timeline_text)
             if 'error' not in timeline:
                 try:
                     oldest_date = datetime.datetime.strptime(
@@ -31,12 +35,19 @@ class Score(ndb.Model):
         return None
 
     def get_follower_count(self):
-        profile = json.loads(self.profile_text)
+        # TODO: When all information in profile_text is JSON, remove this check
+        profile = (json.loads(self.profile_text)
+                   if isinstance(self.profile_text, str)
+                   else self.profile_text)
         return profile.get('followers_count')
 
     def get_hashtags(self):
         if self.timeline_text is not None:
-            timeline = json.loads(self.timeline_text)
+            # TODO: When all information in timeline_text is JSON, remove this
+            # check
+            timeline = (json.loads(self.timeline_text)
+                        if isinstance(self.profile_text, str)
+                        else self.profile_text)
             if 'error' not in timeline:
                 return list(set(
                     itertools.chain(
@@ -50,7 +61,11 @@ class Score(ndb.Model):
 
     def get_websites(self):
         if self.timeline_text is not None:
-            timeline = json.loads(self.timeline_text)
+            # TODO: When all information in timeline_text is JSON, remove this
+            # check
+            timeline = (json.loads(self.timeline_text)
+                        if isinstance(self.profile_text, str)
+                        else self.profile_text)
             if 'error' not in timeline:
                 lists = [s for s in
                          [t['retweeted_status']['entities']['urls']for t in
@@ -71,8 +86,8 @@ class Score(ndb.Model):
     grades = ndb.JsonProperty(default={})
 
     # For refreshing scores without hitting the APIs
-    profile_text = ndb.TextProperty(default='{}')
-    timeline_text = ndb.TextProperty(default='[]')
+    profile_text = ndb.JsonProperty(default={}, compressed=True)
+    timeline_text = ndb.JsonProperty(default=[], compressed=True)
 
     # For analytics
     follower_count = ndb.ComputedProperty(get_follower_count)
