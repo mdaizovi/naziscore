@@ -79,6 +79,8 @@ HASHTAGS = (
     '#nra',
     '#operationBuzzKill',
     '#orpuw',
+    '#pedogate',
+    '#pizzagate',
     '#pjnet',
     '#prowhite',
     '#psychojoe',
