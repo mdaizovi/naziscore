@@ -198,11 +198,11 @@ def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
     result = 0
     tweets = [
         (t['text'],
-        [u['url'] for u in t['entities']['urls']])
+         [u['url'] for u in t['entities']['urls']])
         for t in timeline]  # Could use ['status']['text'].
     retweets = [
         (t['retweeted_statu']['text'],
-        [u['url'] for u in t['retweeted_statu']['entities']['urls']])
+         [u['url'] for u in t['retweeted_statu']['entities']['urls']])
         for t in timeline
         if 'retweeted_statu' in t]
     for trigger in triggers:
