@@ -8,7 +8,10 @@ import os
 from inspect import isfunction
 from itertools import chain
 
-from google.appengine.api import taskqueue
+from google.appengine.api import (
+    taskqueue,
+    urlfetch,
+)
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import OverQuotaError
 
@@ -20,6 +23,7 @@ from naziscore.deplorable_constants import (
     HASHTAGS,
     PEPES,
     TRIGGERS,
+    URL_MASKERS,
 )
 
 # How much of the tree will be scanned. We stop at depth >= MAX_DEPTH
@@ -281,13 +285,25 @@ def points_from_external_links(profile, timeline, depth):
     "Returns POINTS_FAKE_NEWS points for each link from fake news sources."
     result = 0
     lists = [s for s in
-             [t['retweeted_status']['entities']['urls']for t in
+             [t['retweeted_status']['entities']['urls'] for t in
               timeline if 'retweeted_status' in t] if s] + [
                   t['entities']['urls'] for t in timeline if 'entities' in t]
     for l in lists:
         for u in l:
+            for um in URL_MASKERS:
+                if um in u['expanded_url']:
+                    expanded_url = urlfetch.Fetch(
+                        u['expanded_url'],
+                        follow_redirects=False).headers.get('location')
+                    logging.info(
+                        'Expanded {} into {}'.format(
+                            u['expanded_url'], expanded_url))
+                    u['expanded_url'] = expanded_url
+                    break
             for nw in FAKE_NEWS_WEBSITES:
-                result += POINTS_FAKE_NEWS if nw in u['expanded_url'] else 0
+                if nw in u['expanded_url']:
+                    result += POINTS_FAKE_NEWS
+                    break
     if result > 0:
         logging.info(
             '{} scored {} for fake news'.format(
@@ -304,8 +320,15 @@ def points_from_actual_news_sites(profile, timeline, depth):
                   t['entities']['urls'] for t in timeline if 'entities' in t]
     for l in lists:
         for u in l:
+            for um in URL_MASKERS:
+                if um in u:
+                    u = urlfetch.Fetch(
+                        u, follow_redirects=False).headers.get('location')
+                    break
             for nw in ACTUAL_NEWS_WEBSITES:
-                result += POINTS_ACTUAL_NEWS if nw in u['expanded_url'] else 0
+                if nw in u['expanded_url']:
+                    result += POINTS_ACTUAL_NEWS
+                    break
     if result > 0:
         logging.info(
             '{} scored {} for fake news'.format(

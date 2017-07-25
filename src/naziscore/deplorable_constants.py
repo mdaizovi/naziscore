@@ -1262,3 +1262,8 @@ ACTUAL_NEWS_WEBSITES = (  # And their shorteners
     'plannedparenthood.org',
     'splcenter.org',
 )
+
+# URL shorteners that may be used to obfuscate suspicious websites.
+URL_MASKERS = (
+    'crwd.fr',
+)
