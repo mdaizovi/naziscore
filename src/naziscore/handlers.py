@@ -329,7 +329,6 @@ class WorstHashtagHandler(webapp2.RequestHandler):
         response_writer = csv.writer(
             self.response, delimiter=',', quoting=csv.QUOTE_ALL)
         c = Counter()
-        hashtags = []
         for s in Score.query().order(-Score.score).iter(
                     limit=5000, projection=(Score.hashtags)):
             if s.hashtags is not None:
