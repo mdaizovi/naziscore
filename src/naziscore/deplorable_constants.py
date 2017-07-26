@@ -1190,6 +1190,7 @@ FAKE_NEWS_WEBSITES = (
     'vladtepesblog.com',
     'voat.co/v/pizzagate',
     'westmonster.com',
+    'fxn.ws',
 )
 
 ACTUAL_NEWS_WEBSITES = (  # And their shorteners
