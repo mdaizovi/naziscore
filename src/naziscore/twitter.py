@@ -44,9 +44,12 @@ def get_access_token(force=False):
 
 def authenticated_get(
         url, customer_key=CUSTOMER_KEY, customer_secret=CUSTOMER_SECRET):
-    """Performs an authenticated GET to the given URL.
+    """Performs an authenticated GET to the given URL, returns the response's
+       content.
 
-    https://dev.twitter.com/oauth/application-only"""
+    See https://dev.twitter.com/oauth/application-only
+
+    """
     token = get_access_token()
     response = urlfetch.fetch(
         url,
@@ -63,6 +66,9 @@ def authenticated_get(
 
 
 def get_profile(screen_name='', twitter_id=''):
+    """Returns a JSON text from the Twitter GET users/show API.
+
+    See https://dev.twitter.com/rest/reference/get/users/show"""
     if screen_name != '':
         profile = get_profile_by_screen_name(screen_name)
     elif twitter_id != '':
@@ -71,7 +77,7 @@ def get_profile(screen_name='', twitter_id=''):
 
 
 def get_profile_by_screen_name(screen_name):
-    """Returns a dict from the Twitter GET users/show API.
+    """Returns a JSON text from the Twitter GET users/show API.
 
     See https://dev.twitter.com/rest/reference/get/users/show"""
     return authenticated_get(
@@ -80,7 +86,7 @@ def get_profile_by_screen_name(screen_name):
 
 
 def get_profile_by_twitter_id(twitter_id):
-    """Returns a dict from the Twitter GET users/show API.
+    """Returns a JSON text from the Twitter GET users/show API.
 
     See https://dev.twitter.com/rest/reference/get/users/show"""
     return authenticated_get(
