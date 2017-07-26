@@ -267,7 +267,7 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
             return None
         except OverQuotaError:
             logging.critical('We are over quota after {} scanned '
-                'and {} deleted'.format(scanned, deleted))
+                             'and {} deleted'.format(scanned, deleted))
             return None
         # If we got to this point, we are exiting normally after finishing
         # going over all scores. We can delete the bookmark from the cache.
