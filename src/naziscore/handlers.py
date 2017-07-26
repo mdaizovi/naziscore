@@ -212,35 +212,6 @@ class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
             pass
 
 
-# TODO: Refresh should only be done as records are recalled.
-class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
-    "Updates the oldest score entries. Called by the refresh cron job."
-
-    def get(self):
-        """
-        Selects the oldest entries oilder than 10 days and queues them for
-        refresh.
-        """
-        before = datetime.datetime.now()
-        try:
-            for score in Score.query(
-                    Score.last_updated < datetime.datetime.now()
-                    - datetime.timedelta(days=1)
-            ).order(Score.last_updated).iter(
-                    limit=1000, projection=(Score.screen_name)):
-
-                logging.info(
-                    'Scheduling refresh for {}'.format(score.screen_name))
-                refresh_score_by_screen_name(score.screen_name)
-                if (datetime.datetime.now() - before).seconds > 590:
-                        # Bail out before we are kicked out
-                        logging.warn('Bailing out before timing out')
-                        return None
-        except Timeout:
-            # We'll catch this one the next time.
-            logging.warn('Recovered from a timeout')
-
-
 # TODO: Cleanup should no longer be about duplicates, but about removing
 # records that were not updated in the past 15 days (or so). We should also
 # consider getting rid of zero scores older than 10 days (because queues hold
