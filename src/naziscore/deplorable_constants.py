@@ -1267,5 +1267,21 @@ ACTUAL_NEWS_WEBSITES = (  # And their shorteners
 
 # URL shorteners that may be used to obfuscate suspicious websites.
 URL_MASKERS = (
+    'bit.ly',
+    'buff.ly',
     'crwd.fr',
+    'dlvr.it',
+    'fb.me',  # Only seems to work over SSL
+    # 'go.shr.lc',
+    # 'goo.gl',
+    # 'ift.tt',
+    # 'ijr.com',
+    # 'ln.is',
+    # 'ow.ly',
+    # 'po.st',
+    # 'shar.es',
+    # 'smq.tc',
+    # 'trib.al',
+    # 'usat.ly',
+    'youtu.be',
 )
