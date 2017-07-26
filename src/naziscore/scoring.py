@@ -149,7 +149,7 @@ def refresh_score_by_screen_name(screen_name):
                 os.environ['CURRENT_VERSION_ID'].split('.')[0])),
             params={
                 'screen_name': screen_name,
-                'depth': 1  # Prevent cascades
+                'depth': MAX_DEPTH  # Prevent cascades
             })
         task.add('refresh')
     except taskqueue.TaskAlreadyExistsError:

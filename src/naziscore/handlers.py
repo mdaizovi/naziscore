@@ -25,6 +25,7 @@ from naziscore.scoring import (
     get_score_by_screen_name,
     get_score_by_twitter_id,
     refresh_score_by_screen_name,
+    MAX_DEPTH,
 )
 from naziscore.twitter import (
     get_profile,
@@ -188,7 +189,7 @@ class CalculationHandler(webapp2.RequestHandler):
                     - datetime.timedelta(days=MAX_AGE_DAYS)):
 
                 if timeline is not None:
-                    grades = calculated_score(profile, timeline, depth)
+                    grades = calculated_score(profile, timeline, MAX_DEPTH)
                     score.grades = grades
                 score.put()
                 logging.info(
