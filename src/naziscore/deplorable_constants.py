@@ -1176,6 +1176,7 @@ FAKE_NEWS_WEBSITES = (
     'gatesofvienna.net',
     'gatestoneinstitute.org',
     'grrrgraphics.com',
+    'libslayer2013.wordpress.com',
     'newobserveronline.com',
     'pamelageller.com',
     'patdollard.com',
