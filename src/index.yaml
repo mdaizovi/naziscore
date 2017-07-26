@@ -30,5 +30,11 @@ indexes:
 
 - kind: Score
   properties:
+  - name: score
+    direction: desc
+  - name: websites
+
+- kind: Score
+  properties:
   - name: twitter_id
   - name: last_updated
