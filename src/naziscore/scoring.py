@@ -291,12 +291,14 @@ def points_from_external_links(profile, timeline, depth):
     for l in lists:
         for u in l:
             for um in URL_MASKERS:
-                if um in u['expanded_url']:
+                if u['expanded_url'].startswith(
+                        'http://' + um) or u['expanded_url'].startswith(
+                            'https://' + um):
                     expanded_url = urlfetch.Fetch(
                         u['expanded_url'],
                         follow_redirects=False).headers.get('location')
                     logging.info(
-                        'Expanded {} into {}'.format(
+                        u'Expanded {} into {}'.format(
                             u['expanded_url'], expanded_url))
                     u['expanded_url'] = expanded_url
                     break
@@ -321,9 +323,16 @@ def points_from_actual_news_sites(profile, timeline, depth):
     for l in lists:
         for u in l:
             for um in URL_MASKERS:
-                if um in u:
-                    u = urlfetch.Fetch(
-                        u, follow_redirects=False).headers.get('location')
+                if u['expanded_url'].startswith(
+                        'http://' + um) or u['expanded_url'].startswith(
+                            'https://' + um):
+                    expanded_url = urlfetch.Fetch(
+                        u['expanded_url'],
+                        follow_redirects=False).headers.get('location')
+                    logging.info(
+                        u'Expanded {} into {}'.format(
+                            u['expanded_url'], expanded_url))
+                    u['expanded_url'] = expanded_url
                     break
             for nw in ACTUAL_NEWS_WEBSITES:
                 if nw in u['expanded_url']:

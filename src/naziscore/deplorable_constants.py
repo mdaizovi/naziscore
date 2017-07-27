@@ -1271,7 +1271,7 @@ URL_MASKERS = (
     'buff.ly',
     'crwd.fr',
     'dlvr.it',
-    'fb.me',  # Only seems to work over SSL
+    'fb.me',  # Only seems to work over HTTPS
     # 'go.shr.lc',
     # 'goo.gl',
     # 'ift.tt',
@@ -1281,6 +1281,7 @@ URL_MASKERS = (
     # 'po.st',
     # 'shar.es',
     # 'smq.tc',
+    't.co',
     # 'trib.al',
     # 'usat.ly',
     'youtu.be',
