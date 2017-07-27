@@ -297,9 +297,6 @@ def points_from_external_links(profile, timeline, depth):
                     expanded_url = urlfetch.Fetch(
                         u['expanded_url'],
                         follow_redirects=False).headers.get('location')
-                    logging.info(
-                        u'Expanded {} into {}'.format(
-                            u['expanded_url'], expanded_url))
                     u['expanded_url'] = expanded_url
                     break
             for nw in FAKE_NEWS_WEBSITES:
@@ -329,9 +326,6 @@ def points_from_actual_news_sites(profile, timeline, depth):
                     expanded_url = urlfetch.Fetch(
                         u['expanded_url'],
                         follow_redirects=False).headers.get('location')
-                    logging.info(
-                        u'Expanded {} into {}'.format(
-                            u['expanded_url'], expanded_url))
                     u['expanded_url'] = expanded_url
                     break
             for nw in ACTUAL_NEWS_WEBSITES:
