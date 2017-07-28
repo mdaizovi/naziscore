@@ -290,17 +290,17 @@ def points_from_external_links(profile, timeline, depth):
                   t['entities']['urls'] for t in timeline if 'entities' in t]
     for l in lists:
         for u in l:
+            url = u['expanded_url'] or u['url']
             for um in URL_MASKERS:
-                if u['expanded_url'].startswith(
-                        'http://' + um) or u['expanded_url'].startswith(
+                if url.startswith('http://' + um) or url.startswith(
                             'https://' + um):
                     expanded_url = urlfetch.Fetch(
-                        u['expanded_url'],
-                        follow_redirects=False).headers.get('location')
+                        url, follow_redirects=False).headers.get('location')
                     u['expanded_url'] = expanded_url
                     break
             for nw in FAKE_NEWS_WEBSITES:
-                if nw in u['expanded_url']:
+                if url.startswith('http://' + nw) or url.startswith(
+                        'https://' + nw):
                     result += POINTS_FAKE_NEWS
                     break
     if result > 0:
@@ -319,17 +319,17 @@ def points_from_actual_news_sites(profile, timeline, depth):
                   t['entities']['urls'] for t in timeline if 'entities' in t]
     for l in lists:
         for u in l:
+            url = u['expanded_url'] or u['url']
             for um in URL_MASKERS:
-                if u['expanded_url'].startswith(
-                        'http://' + um) or u['expanded_url'].startswith(
+                if url.startswith('http://' + um) or url.startswith(
                             'https://' + um):
                     expanded_url = urlfetch.Fetch(
-                        u['expanded_url'],
-                        follow_redirects=False).headers.get('location')
+                        url, follow_redirects=False).headers.get('location')
                     u['expanded_url'] = expanded_url
                     break
             for nw in ACTUAL_NEWS_WEBSITES:
-                if nw in u['expanded_url']:
+                if url.startswith('http://' + nw) or url.startswith(
+                        'https://' + nw):
                     result += POINTS_ACTUAL_NEWS
                     break
     if result > 0:
