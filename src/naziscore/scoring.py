@@ -111,7 +111,12 @@ def get_score_by_screen_name(screen_name, depth):
 
 @ndb.tasklet
 def get_score_by_twitter_id(twitter_id, depth):
-    score = yield Score.query(Score.twitter_id == twitter_id).get_async()
+    try:
+        score = yield Score.query(Score.twitter_id == twitter_id).get_async()
+    except OverQuotaError:
+        logging.critical(
+            'Over quota fetching {}'.format(twitter_id))
+        raise ndb.Return(None)
     if score is None:
         try:
             yield taskqueue.Task(
