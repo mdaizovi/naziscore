@@ -8,7 +8,10 @@ import os
 from inspect import isfunction
 from itertools import chain
 
-from google.appengine.api import taskqueue
+from google.appengine.api import (
+    taskqueue,
+    urlfetch,
+)
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import OverQuotaError
 
@@ -20,6 +23,7 @@ from naziscore.deplorable_constants import (
     HASHTAGS,
     PEPES,
     TRIGGERS,
+    URL_MASKERS,
 )
 
 # How much of the tree will be scanned. We stop at depth >= MAX_DEPTH
@@ -68,8 +72,10 @@ POINTS_NEW_ACCOUNT = 1
 @ndb.tasklet
 def get_score_by_screen_name(screen_name, depth):
     # Gets the most recently updated copy, if duplicated.
+    key_name = (
+        '.' + screen_name if screen_name.startswith('__') else screen_name)
     try:
-        score = yield ndb.Key(Score, screen_name).get_async()
+        score = yield ndb.Key(Score, key_name).get_async()
     except OverQuotaError:
         logging.critical('We are over quota.');
         raise ndb.Return(None)
@@ -85,13 +91,18 @@ def get_score_by_screen_name(screen_name, depth):
                     'depth': depth
                 }).add_async(
                     'scoring-direct' if depth == 0 else 'scoring-indirect')
+            # TODO: If we add it to the scoring-direct queue, we should remove
+            # the corresponding task from the scoring-indirect queue at this
+            # point.
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
             logging.warning(
                 'Fetch for {} already scheduled'.format(screen_name))
         except taskqueue.TombstonedTaskError:
-            # This task is too recent. We shouldn't try again so soon.
+            # This task is too recent. We shouldn't try again so
+            # soon. Thombstoning won't happen across different deploys, as the
+            # task name has the deploy timestamp on it.
             logging.warning('Fetch for {} tombstoned'.format(screen_name))
         raise ndb.Return(None)
     else:
@@ -100,7 +111,12 @@ def get_score_by_screen_name(screen_name, depth):
 
 @ndb.tasklet
 def get_score_by_twitter_id(twitter_id, depth):
-    score = yield Score.query(Score.twitter_id == twitter_id).get_async()
+    try:
+        score = yield Score.query(Score.twitter_id == twitter_id).get_async()
+    except OverQuotaError:
+        logging.critical(
+            'Over quota fetching {}'.format(twitter_id))
+        raise ndb.Return(None)
     if score is None:
         try:
             yield taskqueue.Task(
@@ -112,13 +128,18 @@ def get_score_by_twitter_id(twitter_id, depth):
                     'depth': depth
                 }).add_async(
                     'scoring-direct' if depth == 0 else 'scoring-indirect')
+            # TODO: If we add it to the scoring-direct queue, we should remove
+            # the corresponding task from the scoring-indirect queue at this
+            # point.
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
             logging.warning(
                 'Fetch for {} already scheduled'.format(twitter_id))
         except taskqueue.TombstonedTaskError:
-            # This task is too recent. We shouldn't try again so soon.
+            # This task is too recent. We shouldn't try again so
+            # soon. Thombstoning won't happen across different deploys, as the
+            # task name has the deploy timestamp on it.
             logging.warning('Fetch for {} tombstoned'.format(twitter_id))
         raise ndb.Return(None)
     else:
@@ -133,7 +154,7 @@ def refresh_score_by_screen_name(screen_name):
                 os.environ['CURRENT_VERSION_ID'].split('.')[0])),
             params={
                 'screen_name': screen_name,
-                'depth': 1  # Prevent cascades
+                'depth': MAX_DEPTH  # Prevent cascades
             })
         task.add('refresh')
     except taskqueue.TaskAlreadyExistsError:
@@ -182,11 +203,11 @@ def trigger_count(triggers, profile, timeline, points_screen_name, points_name,
     result = 0
     tweets = [
         (t['text'],
-        [u['url'] for u in t['entities']['urls']])
+         [u['url'] for u in t['entities']['urls']])
         for t in timeline]  # Could use ['status']['text'].
     retweets = [
         (t['retweeted_statu']['text'],
-        [u['url'] for u in t['retweeted_statu']['entities']['urls']])
+         [u['url'] for u in t['retweeted_statu']['entities']['urls']])
         for t in timeline
         if 'retweeted_statu' in t]
     for trigger in triggers:
@@ -269,13 +290,24 @@ def points_from_external_links(profile, timeline, depth):
     "Returns POINTS_FAKE_NEWS points for each link from fake news sources."
     result = 0
     lists = [s for s in
-             [t['retweeted_status']['entities']['urls']for t in
+             [t['retweeted_status']['entities']['urls'] for t in
               timeline if 'retweeted_status' in t] if s] + [
                   t['entities']['urls'] for t in timeline if 'entities' in t]
     for l in lists:
         for u in l:
+            url = u['expanded_url'] or u['url']
+            for um in URL_MASKERS:
+                if url.startswith('http://' + um) or url.startswith(
+                            'https://' + um):
+                    expanded_url = urlfetch.Fetch(
+                        url, follow_redirects=False).headers.get('location')
+                    u['expanded_url'] = expanded_url
+                    break
             for nw in FAKE_NEWS_WEBSITES:
-                result += POINTS_FAKE_NEWS if nw in u['expanded_url'] else 0
+                if url.startswith('http://' + nw) or url.startswith(
+                        'https://' + nw):
+                    result += POINTS_FAKE_NEWS
+                    break
     if result > 0:
         logging.info(
             '{} scored {} for fake news'.format(
@@ -292,8 +324,19 @@ def points_from_actual_news_sites(profile, timeline, depth):
                   t['entities']['urls'] for t in timeline if 'entities' in t]
     for l in lists:
         for u in l:
+            url = u['expanded_url'] or u['url']
+            for um in URL_MASKERS:
+                if url.startswith('http://' + um) or url.startswith(
+                            'https://' + um):
+                    expanded_url = urlfetch.Fetch(
+                        url, follow_redirects=False).headers.get('location')
+                    u['expanded_url'] = expanded_url
+                    break
             for nw in ACTUAL_NEWS_WEBSITES:
-                result += POINTS_ACTUAL_NEWS if nw in u['expanded_url'] else 0
+                if url.startswith('http://' + nw) or url.startswith(
+                        'https://' + nw):
+                    result += POINTS_ACTUAL_NEWS
+                    break
     if result > 0:
         logging.info(
             '{} scored {} for fake news'.format(

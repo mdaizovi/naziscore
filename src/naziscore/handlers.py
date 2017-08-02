@@ -8,13 +8,16 @@ import webapp2
 
 from collections import Counter
 
-from google.appengine.api import memcache
-from google.appengine.api import urlfetch
+from google.appengine.api import (
+    memcache,
+    urlfetch
+)
 from google.appengine.api.datastore_errors import Timeout
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import (
     CancelledError,
-    OverQuotaError)
+    OverQuotaError
+)
 
 from naziscore.models import Score
 from naziscore.scoring import (
@@ -22,6 +25,7 @@ from naziscore.scoring import (
     get_score_by_screen_name,
     get_score_by_twitter_id,
     refresh_score_by_screen_name,
+    MAX_DEPTH,
 )
 from naziscore.twitter import (
     get_profile,
@@ -50,7 +54,7 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                 memcache.set(
                     'screen_name:' + screen_name, result, 5)  # 5 seconds
                 expires_date = (datetime.datetime.utcnow()
-                                + datetime.timedelta(seconds=5))
+                                + datetime.timedelta(seconds=2))
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
@@ -88,7 +92,7 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                 memcache.set(
                     'twitter_id:{}'.format(twitter_id), result, 5)  # 5 seconds
                 expires_date = (datetime.datetime.utcnow()
-                                + datetime.timedelta(seconds=5))
+                                + datetime.timedelta(seconds=60))
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
@@ -166,11 +170,12 @@ class CalculationHandler(webapp2.RequestHandler):
                 # We need to add a new one, but only if we got something back
                 # from the Twitter API.
                 screen_name = json.loads(profile)['screen_name']
+                key_name = (
+                    '.' + screen_name.lower() if screen_name.startswith('__')
+                    else screen_name.lower())
                 twitter_id = json.loads(profile)['id']
                 grades = calculated_score(profile, timeline, depth)
-                # TODO: Find a way to prevent duplication. Having a dedup cron
-                # task is... embarrassing.
-                Score(key=ndb.Key(Score, screen_name.lower()),
+                Score(key=ndb.Key(Score, key_name),
                       screen_name=screen_name,
                       twitter_id=twitter_id,
                       grades=grades,
@@ -184,7 +189,7 @@ class CalculationHandler(webapp2.RequestHandler):
                     - datetime.timedelta(days=MAX_AGE_DAYS)):
 
                 if timeline is not None:
-                    grades = calculated_score(profile, timeline, depth)
+                    grades = calculated_score(profile, timeline, MAX_DEPTH)
                     score.grades = grades
                 score.put()
                 logging.info(
@@ -207,34 +212,11 @@ class UpdateOffenderFollowersHandler(webapp2.RequestHandler):
             pass
 
 
-class RefreshOutdatedProfileHandler(webapp2.RequestHandler):
-    "Updates the oldest score entries. Called by the refresh cron job."
-
-    def get(self):
-        """
-        Selects the oldest entries oilder than 10 days and queues them for
-        refresh.
-        """
-        before = datetime.datetime.now()
-        try:
-            for score in Score.query(
-                    Score.last_updated < datetime.datetime.now()
-                    - datetime.timedelta(days=1)
-            ).order(Score.last_updated).iter(
-                    limit=1000, projection=(Score.screen_name)):
-
-                logging.info(
-                    'Scheduling refresh for {}'.format(score.screen_name))
-                refresh_score_by_screen_name(score.screen_name)
-                if (datetime.datetime.now() - before).seconds > 590:
-                        # Bail out before we are kicked out
-                        logging.warn('Bailing out before timing out')
-                        return None
-        except Timeout:
-            # We'll catch this one the next time.
-            logging.warn('Recovered from a timeout')
-
-
+# TODO: Cleanup should no longer be about duplicates, but about removing
+# records that were not updated in the past 15 days (or so). We should also
+# consider getting rid of zero scores older than 10 days (because queues hold
+# names for about 9 days). Since they are automatically refreshed after 10
+# days, anything older than that has not been needed in at least 5 days.
 class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
     "Removes scores with repeated twitter_id. Keep the first."
 
@@ -266,19 +248,27 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
                             line.twitter_id, scanned, deleted))
                 if (datetime.datetime.now() - before).seconds > 590:
                     # Bail out before we are kicked out
-                    logging.warn('Bailing out before timing out')
+                    logging.warn(
+                        'Bailing out before timing out after {} scanned '
+                        'and {} deleted'.format(scanned, deleted))
                     return None
                 else:
                     previous = line.twitter_id
         except Timeout:
             # We'll catch this one the next time.
-            logging.warn('Recovered from a timeout')
+            logging.warn(
+                'Recovered from a timeout after {} scanned '
+                'and {} deleted'.format(scanned, deleted))
         except CancelledError:
             # We should bail out now to avoid an error.
-            logging.warn('Bailing out after a CancelledError')
+            logging.warn(
+                'Bailing out after a CancelledError, after {} scanned '
+                'and {} deleted'.format(scanned, deleted))
             return None
         except OverQuotaError:
-            logging.critical('We are over quota.');
+            logging.critical('We are over quota after {} scanned '
+                             'and {} deleted'.format(scanned, deleted))
+            return None
         # If we got to this point, we are exiting normally after finishing
         # going over all scores. We can delete the bookmark from the cache.
         if scanned == 0:
@@ -303,7 +293,7 @@ class WorstHandler(webapp2.RequestHandler):
                 [line.screen_name, line.twitter_id, line.score])
 
 
-class WorstHashtagHandler(webapp2.RequestHandler):
+class WorstHashtagsHandler(webapp2.RequestHandler):
     "Gets the hashtags most used by the worst offenders as a CSV."
 
     def get(self):
@@ -311,7 +301,6 @@ class WorstHashtagHandler(webapp2.RequestHandler):
         response_writer = csv.writer(
             self.response, delimiter=',', quoting=csv.QUOTE_ALL)
         c = Counter()
-        hashtags = []
         for s in Score.query().order(-Score.score).iter(
                     limit=5000, projection=(Score.hashtags)):
             if s.hashtags is not None:
@@ -319,3 +308,20 @@ class WorstHashtagHandler(webapp2.RequestHandler):
         for tag, tag_count in c.most_common(100):
             response_writer.writerow(
                 [tag, tag_count])
+
+
+class WorstWebsitesHandler(webapp2.RequestHandler):
+    "Gets the websites most used by the worst offenders as a CSV."
+
+    def get(self):
+        "Naïve implementation."
+        response_writer = csv.writer(
+            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+        c = Counter()
+        for s in Score.query().order(-Score.score).iter(
+                    limit=5000, projection=(Score.websites)):
+            if s.websites is not None:
+                c.update((h.lower() for h in s.websites))
+        for site, site_count in c.most_common(100):
+            response_writer.writerow(
+                [site, site_count])

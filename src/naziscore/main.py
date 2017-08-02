@@ -9,7 +9,8 @@ from naziscore.handlers import (
     ScoreByIdHandler,
     ScoreByNameHandler,
     WorstHandler,
-    WorstHashtagHandler,
+    WorstHashtagsHandler,
+    WorstWebsitesHandler,
 )
 
 DEBUG = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
@@ -29,8 +30,12 @@ app = webapp2.WSGIApplication(
             '/v1/worst.csv', WorstHandler, name='worst_handler_v1'),
         webapp2.Route(
             '/v1/worst_hashtags.csv',
-            WorstHashtagHandler,
+            WorstHashtagsHandler,
             name='worst_hashtags_v1'),
+        webapp2.Route(
+            '/v1/worst_websites.csv',
+            WorstWebsitesHandler,
+            name='worst_websitess_v1'),
     ],
     debug=DEBUG)
 
