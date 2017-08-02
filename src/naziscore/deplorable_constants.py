@@ -1224,6 +1224,7 @@ ACTUAL_NEWS_WEBSITES = (  # And their shorteners
     'nbcnews.com',
     'newrepublic.com',
     'newswire.ca',
+    'npr.org',
     'nypost.com',
     'nytimes.com',
     'pbs.org',
