@@ -98,3 +98,7 @@ credentials.py
 *~
 *#
 .#*
+
+# Others
+local_test_data
+.DS_Store
