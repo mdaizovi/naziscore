@@ -8,10 +8,7 @@ import os
 from inspect import isfunction
 from itertools import chain
 
-from google.appengine.api import (
-    taskqueue,
-    urlfetch,
-)
+from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import OverQuotaError
 
@@ -25,6 +22,8 @@ from naziscore.deplorable_constants import (
     TRIGGERS,
     URL_MASKERS,
 )
+
+from naziscore.utils import expanded_url
 
 # How much of the tree will be scanned. We stop at depth >= MAX_DEPTH
 # +-----+----------------------------------------------+
@@ -294,9 +293,7 @@ def points_from_external_links(profile, timeline, depth):
             for um in URL_MASKERS:
                 if url.startswith('http://' + um) or url.startswith(
                             'https://' + um):
-                    expanded_url = urlfetch.Fetch(
-                        url, follow_redirects=False).headers.get('location')
-                    u['expanded_url'] = expanded_url
+                    u['expanded_url'] = expanded_url(url)
                     break
             for nw in FAKE_NEWS_WEBSITES:
                 if url.startswith('http://' + nw) or url.startswith(
@@ -323,9 +320,7 @@ def points_from_actual_news_sites(profile, timeline, depth):
             for um in URL_MASKERS:
                 if url.startswith('http://' + um) or url.startswith(
                             'https://' + um):
-                    expanded_url = urlfetch.Fetch(
-                        url, follow_redirects=False).headers.get('location')
-                    u['expanded_url'] = expanded_url
+                    u['expanded_url'] = expanded_url(url)
                     break
             for nw in ACTUAL_NEWS_WEBSITES:
                 if url.startswith('http://' + nw) or url.startswith(
