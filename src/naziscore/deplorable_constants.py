@@ -146,13 +146,16 @@ TRIGGERS = (
 )
 
 PEPES = (
+    u'⌖',
     u'✠',
+    u'卍',
+    u'卐',
     u'🐸',
     u'👌',
     u'👌🏻',
     u'👌🏼',
     u'🥛',
-    )
+)
 
 # List collected from
 # https://docs.google.com/spreadsheets/d/1o3FFiCB_W2sCLH7g6iPwzC9lmfIj7ojlA-htvQCJhaw/edit#gid=0
