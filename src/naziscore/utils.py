@@ -1,7 +1,5 @@
 # -*- coding:utf-8 -*-
 
-import logging
-
 from google.appengine.api import urlfetch
 from google.appengine.api.urlfetch_errors import DNSLookupFailedError
 
