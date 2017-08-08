@@ -1176,13 +1176,16 @@ FAKE_NEWS_WEBSITES = (
     'epochtimes.de',
     'forward.com',
     'friatider.se',
+    'fxn.ws',
     'gatesofvienna.net',
     'gatestoneinstitute.org',
     'grrrgraphics.com',
+    'hannity.com',
     'libslayer2013.wordpress.com',
     'newobserveronline.com',
     'pamelageller.com',
     'patdollard.com',
+    'reddit.com/r/The_Donald/',
     'speisa.com',
     'thecolumbiabugle.com',
     'theneworder.org',
@@ -1193,7 +1196,6 @@ FAKE_NEWS_WEBSITES = (
     'vladtepesblog.com',
     'voat.co/v/pizzagate',
     'westmonster.com',
-    'fxn.ws',
 )
 
 ACTUAL_NEWS_WEBSITES = (  # And their shorteners
