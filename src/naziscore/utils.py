@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
 
+import urlparse
+
 from google.appengine.api import urlfetch
 from google.appengine.api.urlfetch_errors import DNSLookupFailedError
 
@@ -10,6 +12,10 @@ def expanded_url(url):
         try:
             eu = urlfetch.Fetch(
                 url, follow_redirects=False).headers.get('location', url)
+            purl = urlparse.urlparse(eu)
+            if purl.scheme == '':  # It's relative (hopefully root-relative)
+                purl = urlparse.urlparse(url)
+                return purl.scheme + '://' + purl.netloc + eu
             if url == eu:
                 return eu
             else:
