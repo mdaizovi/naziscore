@@ -21,6 +21,8 @@ handlers:
   script: naziscore.main.app
 
 libraries:
+- name: ssl
+  version: latest
 - name: webapp2
   version: latest
 - name: yaml

@@ -2,11 +2,10 @@
 
 import urlparse
 
+from ssl import CertificateError
+
 from google.appengine.api import urlfetch
-from google.appengine.api.urlfetch_errors import (
-    CertificateError,
-    DNSLookupFailedError,
-)
+from google.appengine.api.urlfetch_errors import DNSLookupFailedError
 
 def expanded_url(url):
     "Expands the URL using the location header protocol. Returns the URL."
