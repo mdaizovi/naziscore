@@ -3,7 +3,10 @@
 import urlparse
 
 from google.appengine.api import urlfetch
-from google.appengine.api.urlfetch_errors import DNSLookupFailedError
+from google.appengine.api.urlfetch_errors import (
+    CertificateError,
+    DNSLookupFailedError,
+)
 
 def expanded_url(url):
     "Expands the URL using the location header protocol. Returns the URL."
@@ -20,5 +23,6 @@ def expanded_url(url):
                 return eu
             else:
                 url = eu
-        except DNSLookupFailedError:
+        except (CertificateError, DNSLookupFailedError) as e:
+            logging.error('fetching {} resulted in {}'.format(url, e))
             return url  # Return the last good one.
