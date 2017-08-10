@@ -1,15 +1,24 @@
 # -*- coding:utf-8 -*-
 
-from google.appengine.api import urlfetch
+import urlparse
 
+from google.appengine.api import urlfetch
+from google.appengine.api.urlfetch_errors import DNSLookupFailedError
 
 def expanded_url(url):
     "Expands the URL using the location header protocol. Returns the URL."
     # TODO: Memcache URLs - popular ones will tend to repeat.
     while True:
-        eu = urlfetch.Fetch(
-            url, follow_redirects=False).headers.get('location', url)
-        if url == eu:
-            return eu
-        else:
-            url = eu
+        try:
+            eu = urlfetch.Fetch(
+                url, follow_redirects=False).headers.get('location', url)
+            purl = urlparse.urlparse(eu)
+            if purl.scheme == '':  # It's relative (hopefully root-relative)
+                purl = urlparse.urlparse(url)
+                return purl.scheme + '://' + purl.netloc + eu
+            if url == eu:
+                return eu
+            else:
+                url = eu
+        except DNSLookupFailedError:
+            return url  # Return the last good one.
