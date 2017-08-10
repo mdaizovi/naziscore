@@ -1181,6 +1181,7 @@ FAKE_NEWS_WEBSITES = (
     'gatestoneinstitute.org',
     'grrrgraphics.com',
     'hannity.com',
+    'ijr.com',
     'insider.foxnews.com',
     'lawnewz.com',
     'libslayer2013.wordpress.com',
