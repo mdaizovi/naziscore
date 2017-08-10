@@ -10,6 +10,7 @@ from naziscore.handlers import (
     ScoreByNameHandler,
     WorstHandler,
     WorstHashtagsHandler,
+    WorstUnknownWebsitesHandler,
     WorstWebsitesHandler,
 )
 
@@ -36,6 +37,10 @@ app = webapp2.WSGIApplication(
             '/v1/worst_websites.csv',
             WorstWebsitesHandler,
             name='worst_websitess_v1'),
+        webapp2.Route(
+            '/v1/worst_unknown_websites.csv',
+            WorstUnknownWebsitesHandler,
+            name='worst_unknown_websites_v1'),
     ],
     debug=DEBUG)
 
