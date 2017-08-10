@@ -1170,6 +1170,7 @@ FAKE_NEWS_WEBSITES = (
     'bigleaguepolitics.com',
     'bigliebook.com',
     'circa.com',
+    'conservativedailynews.com',
     'crusaderjournal.com',
     'dailydosepolitics.com',
     'defendevropa.org',
@@ -1283,17 +1284,20 @@ URL_MASKERS = (
     'bit.ly',
     'buff.ly',
     'crwd.fr',
+    'dld.bz',
     'dlvr.it',
     'fb.me',  # Only seems to work over HTTPS
     'fw.to',
     'go.shr.lc',
     'goo.gl',
+    'hill.cm',
     'ift.tt',
     'ln.is',
     'nty.ms',
     'nyp.st',
     'ow.ly',
     'po.st',
+    'read.bi',
     'shar.es',
     'smq.tc',
     't.co',
@@ -1306,6 +1310,6 @@ URL_MASKERS = (
 KNOWN_SITES = (
     FAKE_NEWS_WEBSITES +
     ACTUAL_NEWS_WEBSITES +
-    tuple(['www.' + s for s in FAKE_NEWS_WEBSITES + ACTUAL_NEWS_WEBSITES]),
+    tuple(['www.' + s for s in FAKE_NEWS_WEBSITES + ACTUAL_NEWS_WEBSITES]) +
     URL_MASKERS
 )
