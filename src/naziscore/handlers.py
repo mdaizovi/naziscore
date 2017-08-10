@@ -19,11 +19,7 @@ from google.appengine.runtime.apiproxy_errors import (
     OverQuotaError
 )
 
-from naziscore.deplorable_constants import (
-    FAKE_NEWS_WEBSITES,
-    ACTUAL_NEWS_WEBSITES,
-    URL_MASKERS,
-)
+from naziscore.deplorable_constants import KNOWN_SITES
 from naziscore.models import Score
 from naziscore.scoring import (
     calculated_score,
@@ -337,8 +333,6 @@ class WorstUnknownWebsitesHandler(webapp2.RequestHandler):
 
     def get(self):
         "Naïve implementation."
-        CATALOGUED_SITES = (
-            FAKE_NEWS_WEBSITES + ACTUAL_NEWS_WEBSITES + URL_MASKERS)
         response_writer = csv.writer(
             self.response, delimiter=',', quoting=csv.QUOTE_ALL)
         c = Counter()
@@ -346,7 +340,7 @@ class WorstUnknownWebsitesHandler(webapp2.RequestHandler):
                     limit=5000, projection=(Score.websites)):
             if s.websites is not None:
                 c.update((h.lower() for h in s.websites
-                          if h.lower() not in CATALOGUED_SITES))
+                          if h.lower() not in KNOWN_SITES))
         for site, site_count in c.most_common(200):
             response_writer.writerow(
                 [site, site_count])

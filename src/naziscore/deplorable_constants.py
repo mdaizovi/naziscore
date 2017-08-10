@@ -1187,6 +1187,7 @@ FAKE_NEWS_WEBSITES = (
     'libslayer2013.wordpress.com',
     'newobserveronline.com',
     'patdollard.com',
+    'patriotjournalist.com',
     'reddit.com/r/The_Donald/',
     'rednationrising.wordpress.com',
     'rushlimbaugh.com',
@@ -1300,4 +1301,11 @@ URL_MASKERS = (
     'trib.al',
     'usat.ly',
     'youtu.be',
+)
+
+KNOWN_SITES = (
+    FAKE_NEWS_WEBSITES +
+    ACTUAL_NEWS_WEBSITES +
+    tuple(['www.' + s for s in FAKE_NEWS_WEBSITES + ACTUAL_NEWS_WEBSITES]),
+    URL_MASKERS
 )
