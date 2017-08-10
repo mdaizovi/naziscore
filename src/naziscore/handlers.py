@@ -332,7 +332,7 @@ class WorstWebsitesHandler(webapp2.RequestHandler):
                 [site, site_count])
 
 
-class WorstUnknownWebsites(webapp2.RequestHandler):
+class WorstUnknownWebsitesHandler(webapp2.RequestHandler):
     "Gets the uncatalogued websites most used by the worst offenders as a CSV."
 
     def get(self):
