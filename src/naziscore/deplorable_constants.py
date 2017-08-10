@@ -1178,7 +1178,6 @@ FAKE_NEWS_WEBSITES = (
     'forward.com',
     'friatider.se',
     'fxn.ws',
-    'gatesofvienna.net',
     'gatestoneinstitute.org',
     'grrrgraphics.com',
     'hannity.com',
@@ -1186,7 +1185,6 @@ FAKE_NEWS_WEBSITES = (
     'lawnewz.com',
     'libslayer2013.wordpress.com',
     'newobserveronline.com',
-    'pamelageller.com',
     'patdollard.com',
     'reddit.com/r/The_Donald/',
     'rednationrising.wordpress.com',
@@ -1198,14 +1196,10 @@ FAKE_NEWS_WEBSITES = (
     'theoldcontinent.eu',
     'theoutright.com',
     'thepeoplessheriff.com',
-    'truepundit.com',
     'turningpoint.news',
     'usfreedomarmy.com',
-    'vladtepesblog.com',
     'voat.co/v/pizzagate',
-    'weaselzippers.us',
     'westmonster.com',
-    'yellowhammernews.com',
 )
 
 ACTUAL_NEWS_WEBSITES = (  # And their shorteners
