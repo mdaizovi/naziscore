@@ -1,7 +1,9 @@
 # -*- coding:utf-8 -*-
 
 HASHTAGS = (
+    '#14words',
     '#2a',
+    '#88precepts',
     '#alt-light',
     '#alt-right',
     '#altlight',
@@ -9,6 +11,7 @@ HASHTAGS = (
     '#amazonwashingtonpost',
     '#americafirst',
     '#antiwhite',
+    '#aryan',
     '#auspol',
     '#banislam',
     '#banquran',
@@ -17,6 +20,7 @@ HASHTAGS = (
     '#benghazi',
     '#buildthewall',
     '#ccot',
+    '#christianidentity',
     '#clintoncollusion',
     '#clintoncrimefamily',
     '#cnnblackmail',
@@ -85,9 +89,11 @@ HASHTAGS = (
     '#prowhite',
     '#psychojoe',
     '#racemixingstinks',
+    '#racialist',
     '#rednationrising',
     '#regressiveleft',
     '#russiahoax',
+    '#separatist',
     '#sethrich',
     '#shadowbanned',
     '#shadysanders',
@@ -110,6 +116,7 @@ HASHTAGS = (
     '#whitehope',
     '#whitelivesmatter',
     '#whitemanfight',
+    '#whitenationalist',
     '#whitepride',
 )
 
@@ -1169,6 +1176,7 @@ FAKE_NEWS_WEBSITES = (
     '4chan.org',
     'bigleaguepolitics.com',
     'bigliebook.com',
+    'christianidentitychurch.net'
     'circa.com',
     'conservativedailynews.com',
     'crusaderjournal.com',
@@ -1182,6 +1190,7 @@ FAKE_NEWS_WEBSITES = (
     'gatestoneinstitute.org',
     'grrrgraphics.com',
     'hannity.com',
+    'hipsterracist.wordpress.com',
     'ijr.com',
     'insider.foxnews.com',
     'lawnewz.com',
@@ -1189,6 +1198,7 @@ FAKE_NEWS_WEBSITES = (
     'newobserveronline.com',
     'patdollard.com',
     'patriotjournalist.com',
+    'radioaryan.com',
     'reddit.com/r/The_Donald/',
     'rednationrising.wordpress.com',
     'rushlimbaugh.com',
@@ -1199,6 +1209,8 @@ FAKE_NEWS_WEBSITES = (
     'theoldcontinent.eu',
     'theoutright.com',
     'thepeoplessheriff.com',
+    'theroperreportsite.wordpress.com',
+    'theshieldmaidens.wordpress.com',
     'turningpoint.news',
     'usfreedomarmy.com',
     'voat.co/v/pizzagate',
