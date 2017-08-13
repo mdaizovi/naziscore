@@ -2,23 +2,23 @@ queue:
 
 # Scores the profiles that are requested directly through the REST API.
 - name: scoring-direct
-  rate: 60/m
-  bucket_size: 200
-  max_concurrent_requests: 60
+  rate: 120/m  # This will most likely not be sustained
+  bucket_size: 120
+  max_concurrent_requests: 10
   retry_parameters:
-    min_backoff_seconds: 40
-    max_backoff_seconds: 7200
+    min_backoff_seconds: 120
+    max_backoff_seconds: 900  # Will fall in the next 15-minute window
     max_doublings: 4
 
 # Scores the profiles nedded as part of the indirect scoring process (followers, retweets etc).
 - name: scoring-indirect
   rate: 60/m
-  bucket_size: 200
-  max_concurrent_requests: 2
+  bucket_size: 60
+  max_concurrent_requests: 8
   retry_parameters:
-    min_backoff_seconds: 40
-    max_backoff_seconds: 7200
-    max_doublings: 4
+    min_backoff_seconds: 120
+    max_backoff_seconds: 3600
+    max_doublings: 5
 
 # For low TPS transactions (getting followers, friends).
 - name: low-tps
