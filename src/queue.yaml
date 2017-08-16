@@ -14,7 +14,7 @@ queue:
 - name: scoring-indirect
   rate: 60/m
   bucket_size: 60
-  max_concurrent_requests: 8
+  max_concurrent_requests: 10
   retry_parameters:
     min_backoff_seconds: 120
     max_backoff_seconds: 3600
