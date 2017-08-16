@@ -37,7 +37,7 @@ class Score(ndb.Model):
     def get_follower_count(self):
         # TODO: When all information in profile_text is JSON, remove this check
         profile = (json.loads(self.profile_text)
-                   if isinstance(self.profile_text, str)
+                   if isinstance(self.profile_text, (str, unicode))
                    else self.profile_text)
         return profile.get('followers_count')
 
@@ -46,7 +46,7 @@ class Score(ndb.Model):
             # TODO: When all information in timeline_text is JSON, remove this
             # check
             timeline = (json.loads(self.timeline_text)
-                        if isinstance(self.profile_text, str)
+                        if isinstance(self.profile_text, (str, unicode))
                         else self.profile_text)
             if 'error' not in timeline:
                 return list(set(
@@ -64,7 +64,7 @@ class Score(ndb.Model):
             # TODO: When all information in timeline_text is JSON, remove this
             # check
             timeline = (json.loads(self.timeline_text)
-                        if isinstance(self.profile_text, str)
+                        if isinstance(self.profile_text, (str, unicode))
                         else self.profile_text)
             if 'error' not in timeline:
                 lists = [s for s in
