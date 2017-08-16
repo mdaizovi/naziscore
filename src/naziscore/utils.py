@@ -8,7 +8,9 @@ from ssl import CertificateError
 from google.appengine.api import urlfetch
 from google.appengine.api.urlfetch_errors import (
     DeadlineExceededError,
+    DownloadError,
     DNSLookupFailedError,
+    SSLCertificateError
 )
 
 
@@ -29,6 +31,8 @@ def expanded_url(url):
                 url = eu
         except (CertificateError,
                 DeadlineExceededError,
-                DNSLookupFailedError) as e:
+                DownloadError,
+                DNSLookupFailedError,
+                SSLCertificateError) as e:
             logging.error('fetching {} resulted in {}'.format(url, e))
             return url  # Return the last good one.
