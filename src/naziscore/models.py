@@ -17,7 +17,7 @@ class Score(ndb.Model):
             # TODO: When all information in timeline_text is JSON, remove this
             # check
             timeline = (json.loads(self.timeline_text)
-                        if isinstance(self.timeline_text, str)
+                        if isinstance(self.timeline_text, (str, unicode))
                         else self.timeline_text)
             if 'error' not in timeline:
                 try:
