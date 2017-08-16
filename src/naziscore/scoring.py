@@ -76,7 +76,7 @@ def get_score_by_screen_name(screen_name, depth):
     try:
         score = yield ndb.Key(Score, key_name).get_async()
     except OverQuotaError:
-        logging.critical('We are over quota.');
+        logging.critical('We are over quota.')
         raise ndb.Return(None)
     if score is None:
         # If we don't have one, we need to calculate one.
