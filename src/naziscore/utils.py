@@ -10,6 +10,7 @@ from google.appengine.api.urlfetch_errors import (
     DeadlineExceededError,
     DownloadError,
     DNSLookupFailedError,
+    InvalidURLError,
     SSLCertificateError
 )
 
@@ -29,6 +30,9 @@ def expanded_url(url):
                 return eu
             else:
                 url = eu
+        except InvalidURLError as e:
+            logging.info('fetching {} resulted in {}'.format(url, e))
+            url = purl.scheme + '://' + purl.netloc + eu
         except (CertificateError,
                 DeadlineExceededError,
                 DownloadError,
