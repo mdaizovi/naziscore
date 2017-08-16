@@ -11,6 +11,7 @@ from google.appengine.api.urlfetch_errors import (
     DownloadError,
     DNSLookupFailedError,
     InvalidURLError,
+    ResponseTooLargeError,
     SSLCertificateError
 )
 
@@ -37,6 +38,8 @@ def expanded_url(url):
                 DeadlineExceededError,
                 DownloadError,
                 DNSLookupFailedError,
+                ResponseTooLargeError,
                 SSLCertificateError) as e:
+            # This is as far as we'll go expanding this URL
             logging.error('fetching {} resulted in {}'.format(url, e))
             return url  # Return the last good one.
