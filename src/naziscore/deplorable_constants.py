@@ -107,6 +107,7 @@ HASHTAGS = (
     '#trumptrain',
     '#trusttrump',
     '#ukip',
+    '#unitetheright',
     '#verydfakenews',
     '#waronwhites'
     '#whitebeauty',
@@ -118,6 +119,7 @@ HASHTAGS = (
     '#whitemanfight',
     '#whitenationalist',
     '#whitepride',
+    '#youwillnotreplaceus',
 )
 
 TRIGGERS = (
