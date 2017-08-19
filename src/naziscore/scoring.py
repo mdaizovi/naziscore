@@ -171,6 +171,7 @@ def calculated_score(profile_json, timeline_json, depth):
     grades = {}
     profile = json.loads(profile_json)
     timeline = json.loads(timeline_json)
+    logging.info('Scoring {}'.format(profile['screen_name']))
     if 'error' in timeline and timeline['error'] == 'Not authorized.':
         logging.info('{} is private'.format(profile['screen_name']))
         timeline = []  # There are no tweets to check, user is private
@@ -191,7 +192,7 @@ def points_from_gabai(profile, timeline, depth):
               or 'gab.ai' in profile['name'].lower()
               else 0)
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for gab.ai'.format(profile['screen_name'], result))
     return result
 
@@ -230,7 +231,7 @@ def points_from_pepes(profile, timeline, depth):
         PEPES, profile, timeline, POINTS_PEPE_SCREEN_NAME, POINTS_PEPE_NAME,
         POINTS_PEPE_DESCRIPTION, POINTS_PEPE_TWEET)
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for pepes'.format(profile['screen_name'], result))
     return result
 
@@ -242,7 +243,7 @@ def points_from_hashtags(profile, timeline, depth):
         HASHTAGS, profile, timeline, POINTS_HASHTAG_SCREEN_NAME,
         POINTS_HASHTAG_NAME, POINTS_HASHTAG_DESCRIPTION, POINTS_HASHTAG_TWEET)
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for hashtags'.format(profile['screen_name'], result))
     return result
 
@@ -253,7 +254,7 @@ def points_from_triggers(profile, timeline, depth):
         TRIGGERS, profile, timeline, POINTS_TRIGGER_SCREEN_NAME,
         POINTS_TRIGGER_NAME, POINTS_TRIGGER_DESCRIPTION, POINTS_TRIGGER_TWEET)
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for triggers'.format(profile['screen_name'], result))
     return result
 
@@ -267,7 +268,7 @@ def points_from_retweets(profile, timeline, depth):
         return 0
     else:
         result = 0
-        logging.info(
+        logging.debug(
             'Recursively looking into {} at depth {}'.format(
                 profile['screen_name'], depth))
         authors = [
@@ -279,7 +280,7 @@ def points_from_retweets(profile, timeline, depth):
             result += (score.score * POINTS_RETWEET_FRACTION
                        if score is not None else 0)
         if result > 0:
-            logging.info(
+            logging.debug(
                 '{} scored {} for retweets'.format(
                     profile['screen_name'], result))
         return result
@@ -306,7 +307,7 @@ def points_from_external_links(profile, timeline, depth):
                     result += POINTS_FAKE_NEWS
                     break
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for fake news'.format(
                 profile['screen_name'], result))
     return result
@@ -333,7 +334,7 @@ def points_from_actual_news_sites(profile, timeline, depth):
                     result += POINTS_ACTUAL_NEWS
                     break
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for fake news'.format(
                 profile['screen_name'], result))
     return result
@@ -365,7 +366,7 @@ def points_from_low_follower(profile, timeline, depth):
     else:
         result = 0
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for low folower count'.format(
                 profile['screen_name'], result))
     return result
@@ -380,7 +381,7 @@ def points_from_new_account(profile, timeline, depth):
     else:
         result = 0
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for low folower count'.format(
                 profile['screen_name'], result))
     return result
