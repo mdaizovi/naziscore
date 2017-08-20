@@ -22,7 +22,6 @@ from google.appengine.api.urlfetch_errors import (
 
 def expanded_url(url):
     "Expands the URL using the location header protocol. Returns the URL."
-    # TODO: Memcache URLs - popular ones will tend to repeat.
     key = urllib.quote_plus(urlparse.urlparse(url).geturl())
     expanded = memcache.get(key)
     if expanded is not None:
