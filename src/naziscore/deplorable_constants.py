@@ -1180,6 +1180,7 @@ FAKE_NEWS_WEBSITES = (
     'bigliebook.com',
     'christianidentitychurch.net'
     'circa.com',
+    'freecriticalthinking.org',
     'conservativedailynews.com',
     'crusaderjournal.com',
     'dailydosepolitics.com',
