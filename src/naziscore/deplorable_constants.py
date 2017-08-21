@@ -1198,6 +1198,7 @@ FAKE_NEWS_WEBSITES = (
     'lawnewz.com',
     'libslayer2013.wordpress.com',
     'newobserveronline.com',
+    'occidentaldissent.com',
     'patdollard.com',
     'patriotjournalist.com',
     'radioaryan.com',
