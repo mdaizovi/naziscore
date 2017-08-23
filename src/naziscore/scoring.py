@@ -8,10 +8,7 @@ import os
 from inspect import isfunction
 from itertools import chain
 
-from google.appengine.api import (
-    taskqueue,
-    urlfetch,
-)
+from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import OverQuotaError
 
@@ -25,6 +22,8 @@ from naziscore.deplorable_constants import (
     TRIGGERS,
     URL_MASKERS,
 )
+
+from naziscore.utils import expanded_url
 
 # How much of the tree will be scanned. We stop at depth >= MAX_DEPTH
 # +-----+----------------------------------------------+
@@ -77,7 +76,7 @@ def get_score_by_screen_name(screen_name, depth):
     try:
         score = yield ndb.Key(Score, key_name).get_async()
     except OverQuotaError:
-        logging.critical('We are over quota.');
+        logging.critical('We are over quota.')
         raise ndb.Return(None)
     if score is None:
         # If we don't have one, we need to calculate one.
@@ -172,6 +171,7 @@ def calculated_score(profile_json, timeline_json, depth):
     grades = {}
     profile = json.loads(profile_json)
     timeline = json.loads(timeline_json)
+    logging.info('Scoring {}'.format(profile['screen_name']))
     if 'error' in timeline and timeline['error'] == 'Not authorized.':
         logging.info('{} is private'.format(profile['screen_name']))
         timeline = []  # There are no tweets to check, user is private
@@ -192,7 +192,7 @@ def points_from_gabai(profile, timeline, depth):
               or 'gab.ai' in profile['name'].lower()
               else 0)
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for gab.ai'.format(profile['screen_name'], result))
     return result
 
@@ -231,7 +231,7 @@ def points_from_pepes(profile, timeline, depth):
         PEPES, profile, timeline, POINTS_PEPE_SCREEN_NAME, POINTS_PEPE_NAME,
         POINTS_PEPE_DESCRIPTION, POINTS_PEPE_TWEET)
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for pepes'.format(profile['screen_name'], result))
     return result
 
@@ -243,7 +243,7 @@ def points_from_hashtags(profile, timeline, depth):
         HASHTAGS, profile, timeline, POINTS_HASHTAG_SCREEN_NAME,
         POINTS_HASHTAG_NAME, POINTS_HASHTAG_DESCRIPTION, POINTS_HASHTAG_TWEET)
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for hashtags'.format(profile['screen_name'], result))
     return result
 
@@ -254,7 +254,7 @@ def points_from_triggers(profile, timeline, depth):
         TRIGGERS, profile, timeline, POINTS_TRIGGER_SCREEN_NAME,
         POINTS_TRIGGER_NAME, POINTS_TRIGGER_DESCRIPTION, POINTS_TRIGGER_TWEET)
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for triggers'.format(profile['screen_name'], result))
     return result
 
@@ -268,7 +268,7 @@ def points_from_retweets(profile, timeline, depth):
         return 0
     else:
         result = 0
-        logging.info(
+        logging.debug(
             'Recursively looking into {} at depth {}'.format(
                 profile['screen_name'], depth))
         authors = [
@@ -280,7 +280,7 @@ def points_from_retweets(profile, timeline, depth):
             result += (score.score * POINTS_RETWEET_FRACTION
                        if score is not None else 0)
         if result > 0:
-            logging.info(
+            logging.debug(
                 '{} scored {} for retweets'.format(
                     profile['screen_name'], result))
         return result
@@ -299,9 +299,7 @@ def points_from_external_links(profile, timeline, depth):
             for um in URL_MASKERS:
                 if url.startswith('http://' + um) or url.startswith(
                             'https://' + um):
-                    expanded_url = urlfetch.Fetch(
-                        url, follow_redirects=False).headers.get('location')
-                    u['expanded_url'] = expanded_url
+                    u['expanded_url'] = expanded_url(url)
                     break
             for nw in FAKE_NEWS_WEBSITES:
                 if url.startswith('http://' + nw) or url.startswith(
@@ -309,7 +307,7 @@ def points_from_external_links(profile, timeline, depth):
                     result += POINTS_FAKE_NEWS
                     break
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for fake news'.format(
                 profile['screen_name'], result))
     return result
@@ -328,9 +326,7 @@ def points_from_actual_news_sites(profile, timeline, depth):
             for um in URL_MASKERS:
                 if url.startswith('http://' + um) or url.startswith(
                             'https://' + um):
-                    expanded_url = urlfetch.Fetch(
-                        url, follow_redirects=False).headers.get('location')
-                    u['expanded_url'] = expanded_url
+                    u['expanded_url'] = expanded_url(url)
                     break
             for nw in ACTUAL_NEWS_WEBSITES:
                 if url.startswith('http://' + nw) or url.startswith(
@@ -338,7 +334,7 @@ def points_from_actual_news_sites(profile, timeline, depth):
                     result += POINTS_ACTUAL_NEWS
                     break
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for fake news'.format(
                 profile['screen_name'], result))
     return result
@@ -370,7 +366,7 @@ def points_from_low_follower(profile, timeline, depth):
     else:
         result = 0
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for low folower count'.format(
                 profile['screen_name'], result))
     return result
@@ -385,7 +381,7 @@ def points_from_new_account(profile, timeline, depth):
     else:
         result = 0
     if result > 0:
-        logging.info(
+        logging.debug(
             '{} scored {} for low folower count'.format(
                 profile['screen_name'], result))
     return result

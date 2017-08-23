@@ -1,7 +1,9 @@
 # -*- coding:utf-8 -*-
 
 HASHTAGS = (
+    '#14words',
     '#2a',
+    '#88precepts',
     '#alt-light',
     '#alt-right',
     '#altlight',
@@ -9,6 +11,7 @@ HASHTAGS = (
     '#amazonwashingtonpost',
     '#americafirst',
     '#antiwhite',
+    '#aryan',
     '#auspol',
     '#banislam',
     '#banquran',
@@ -17,6 +20,7 @@ HASHTAGS = (
     '#benghazi',
     '#buildthewall',
     '#ccot',
+    '#christianidentity',
     '#clintoncollusion',
     '#clintoncrimefamily',
     '#cnnblackmail',
@@ -85,9 +89,11 @@ HASHTAGS = (
     '#prowhite',
     '#psychojoe',
     '#racemixingstinks',
+    '#racialist',
     '#rednationrising',
     '#regressiveleft',
     '#russiahoax',
+    '#separatist',
     '#sethrich',
     '#shadowbanned',
     '#shadysanders',
@@ -101,6 +107,7 @@ HASHTAGS = (
     '#trumptrain',
     '#trusttrump',
     '#ukip',
+    '#unitetheright',
     '#verydfakenews',
     '#waronwhites'
     '#whitebeauty',
@@ -110,7 +117,9 @@ HASHTAGS = (
     '#whitehope',
     '#whitelivesmatter',
     '#whitemanfight',
+    '#whitenationalist',
     '#whitepride',
+    '#youwillnotreplaceus',
 )
 
 TRIGGERS = (
@@ -146,13 +155,16 @@ TRIGGERS = (
 )
 
 PEPES = (
+    u'⌖',
     u'✠',
+    u'卍',
+    u'卐',
     u'🐸',
     u'👌',
     u'👌🏻',
     u'👌🏼',
     u'🥛',
-    )
+)
 
 # List collected from
 # https://docs.google.com/spreadsheets/d/1o3FFiCB_W2sCLH7g6iPwzC9lmfIj7ojlA-htvQCJhaw/edit#gid=0
@@ -1166,31 +1178,47 @@ FAKE_NEWS_WEBSITES = (
     '4chan.org',
     'bigleaguepolitics.com',
     'bigliebook.com',
+    'christianidentitychurch.net'
     'circa.com',
+    'freecriticalthinking.org',
+    'conservativedailynews.com',
     'crusaderjournal.com',
+    'dailydosepolitics.com',
     'defendevropa.org',
     'dineshdsouza.com',
     'epochtimes.de',
     'forward.com',
     'friatider.se',
-    'gatesofvienna.net',
+    'fxn.ws',
     'gatestoneinstitute.org',
     'grrrgraphics.com',
+    'hannity.com',
+    'hipsterracist.wordpress.com',
+    'ijr.com',
+    'insider.foxnews.com',
+    'lawnewz.com',
     'libslayer2013.wordpress.com',
     'newobserveronline.com',
-    'pamelageller.com',
+    'occidentaldissent.com',
     'patdollard.com',
+    'patriotjournalist.com',
+    'radioaryan.com',
+    'reddit.com/r/The_Donald/',
+    'rednationrising.wordpress.com',
+    'rushlimbaugh.com',
     'speisa.com',
     'thecolumbiabugle.com',
     'theneworder.org',
     'theoccidentalobserver.net',
     'theoldcontinent.eu',
     'theoutright.com',
+    'thepeoplessheriff.com',
+    'theroperreportsite.wordpress.com',
+    'theshieldmaidens.wordpress.com',
+    'turningpoint.news',
     'usfreedomarmy.com',
-    'vladtepesblog.com',
     'voat.co/v/pizzagate',
     'westmonster.com',
-    'fxn.ws',
 )
 
 ACTUAL_NEWS_WEBSITES = (  # And their shorteners
@@ -1268,22 +1296,36 @@ ACTUAL_NEWS_WEBSITES = (  # And their shorteners
 
 # URL shorteners that may be used to obfuscate suspicious websites.
 URL_MASKERS = (
+    'amzn.to',
     'bit.ly',
     'buff.ly',
     'crwd.fr',
+    'dld.bz',
     'dlvr.it',
     'fb.me',  # Only seems to work over HTTPS
-    # 'go.shr.lc',
-    # 'goo.gl',
-    # 'ift.tt',
-    # 'ijr.com',
-    # 'ln.is',
-    # 'ow.ly',
-    # 'po.st',
-    # 'shar.es',
-    # 'smq.tc',
+    'fw.to',
+    'go.shr.lc',
+    'goo.gl',
+    'hill.cm',
+    'ift.tt',
+    'ln.is',
+    'nty.ms',
+    'nyp.st',
+    'ow.ly',
+    'po.st',
+    'read.bi',
+    'shar.es',
+    'smq.tc',
     't.co',
-    # 'trib.al',
-    # 'usat.ly',
+    'thebea.st',
+    'trib.al',
+    'usat.ly',
     'youtu.be',
+)
+
+KNOWN_SITES = (
+    FAKE_NEWS_WEBSITES +
+    ACTUAL_NEWS_WEBSITES +
+    tuple(['www.' + s for s in FAKE_NEWS_WEBSITES + ACTUAL_NEWS_WEBSITES]) +
+    URL_MASKERS
 )
