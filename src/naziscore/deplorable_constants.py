@@ -1176,7 +1176,9 @@ FAKE_NEWS_WEBSITES = (
 ) + (  # Others added later
     '10news.one',
     '4chan.org',
+    'americanactionnetwork.org',
     'anncoulter.com',
+    'archbishopcranmer.com'
     'bigleaguepolitics.com',
     'bigliebook.com',
     'christianidentitychurch.net'
