@@ -159,7 +159,7 @@ class CalculationHandler(webapp2.RequestHandler):
                                 Score.twitter_id == twitter_id).fetch(
                                     keys_only=True))
                     logging.info('Deleted old score for {}'.format(
-                         screen_name if screen_name else twitter_id))
+                         screen_name or twitter_id))
                 else:
                     raise  # Will retry later.
             if profile is not None:
