@@ -33,7 +33,7 @@ from naziscore.twitter import (
     get_timeline,
 )
 
-MAX_AGE_DAYS = 7
+MAX_AGE_DAYS = 10
 
 
 class ScoreByNameHandler(webapp2.RequestHandler):
