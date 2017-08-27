@@ -1184,6 +1184,7 @@ FAKE_NEWS_WEBSITES = (
     'archbishopcranmer.com'
     'bigleaguepolitics.com',
     'bigliebook.com',
+    'bitchute.com',
     'byhisgrace.com',
     'christianidentitychurch.net'
     'circa.com',
@@ -1202,6 +1203,7 @@ FAKE_NEWS_WEBSITES = (
     'freecriticalthinking.org',
     'friatider.se',
     'fxn.ws',
+    'gab.ai',
     'gatestoneinstitute.org',
     'grrrgraphics.com',
     'hannity.com',
@@ -1210,6 +1212,7 @@ FAKE_NEWS_WEBSITES = (
     'insider.foxnews.com',
     'lawnewz.com',
     'libslayer2013.wordpress.com',
+    'libya360.wordpress.com',
     'newobserveronline.com',
     'occidentaldissent.com',
     'patdollard.com',
@@ -1221,8 +1224,10 @@ FAKE_NEWS_WEBSITES = (
     'rense.com',
     'rushlimbaugh.com',
     'speisa.com',
+    'syria360.wordpress.com',
     'thecolumbiabugle.com',
     'thefederalist.com',
+    'thefreethoughtproject.com',
     'theneworder.org',
     'theoccidentalobserver.net',
     'theoldcontinent.eu',
@@ -1236,6 +1241,7 @@ FAKE_NEWS_WEBSITES = (
     'voat.co/v/pizzagate',
     'westmonster.com',
     'whitegenocideproject.com',
+    'worldtoday365.info',
 )
 
 ACTUAL_NEWS_WEBSITES = (  # And their shorteners
