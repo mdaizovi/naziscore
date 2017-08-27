@@ -1,6 +1,7 @@
 # Naziscore
 A tool for assessing the naziness of a Twitter profile. Runs on Google
-App Engine.
+App Engine and is used by the Unpepefy browser extension (
+https://github.com/rbanffy/unpepefy).
 
 # Basic idea
 When a request arrives, we check if the score was already calculated. If
