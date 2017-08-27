@@ -1177,6 +1177,7 @@ FAKE_NEWS_WEBSITES = (
 ) + (  # Others added later
     '10news.one',
     '4chan.org',
+    'almasdarnews.com',
     'americanactionnetwork.org',
     'amgreatness.com',
     'anncoulter.com',
@@ -1213,9 +1214,11 @@ FAKE_NEWS_WEBSITES = (
     'occidentaldissent.com',
     'patdollard.com',
     'patriotjournalist.com',
+    'pscp.tv',
     'radioaryan.com',
     'reddit.com/r/The_Donald/',
     'rednationrising.wordpress.com',
+    'rense.com',
     'rushlimbaugh.com',
     'speisa.com',
     'thecolumbiabugle.com',
@@ -1227,6 +1230,7 @@ FAKE_NEWS_WEBSITES = (
     'thepeoplessheriff.com',
     'theroperreportsite.wordpress.com',
     'theshieldmaidens.wordpress.com',
+    'tsarizm.com',
     'turningpoint.news',
     'usfreedomarmy.com',
     'voat.co/v/pizzagate',
@@ -1309,6 +1313,7 @@ ACTUAL_NEWS_WEBSITES = (  # And their shorteners
 
 # URL shorteners that may be used to obfuscate suspicious websites.
 URL_MASKERS = (
+    'aml.ink',
     'amzn.to',
     'bit.ly',
     'buff.ly',

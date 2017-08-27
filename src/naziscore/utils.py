@@ -22,7 +22,11 @@ from google.appengine.api.urlfetch_errors import (
 
 def expanded_url(url):
     "Expands the URL using the location header protocol. Returns the URL."
-    key = urllib.quote_plus(urlparse.urlparse(url).geturl())
+    try:
+        key = urllib.quote_plus(urlparse.urlparse(url).geturl())
+    except KeyError:
+        logging.error("Couldn't parse {}".format(url))
+        raise
     expanded = memcache.get(key)
     if expanded is not None:
         logging.info('URL expansion cache hit.')
