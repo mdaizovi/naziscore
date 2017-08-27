@@ -20,6 +20,7 @@ HASHTAGS = (
     '#benghazi',
     '#buildthewall',
     '#ccot',
+    '#chasingdownwhites',
     '#christianidentity',
     '#clintoncollusion',
     '#clintoncrimefamily',
