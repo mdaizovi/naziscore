@@ -25,7 +25,7 @@ def expanded_url(url):
     try:
         key = urllib.quote_plus(urlparse.urlparse(url).geturl())
     except KeyError:
-        logging.error("Couldn't parse {}".format(url))
+        logging.error(u"Couldn't parse {}".format(url))
         raise
     expanded = memcache.get(key)
     if expanded is not None:
