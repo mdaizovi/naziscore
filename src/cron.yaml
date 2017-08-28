@@ -1,5 +1,5 @@
 cron:
-- description: "Duplicate cleanup"
+- description: "Remove stale profiles"
   url: /_ah/cron/cleanup
   schedule: every sunday 02:00
   retry_parameters:

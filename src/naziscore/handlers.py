@@ -223,60 +223,7 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
 
     @ndb.toplevel
     def get(self):
-        "Naïve implementation."
-        scanned = 0
-        deleted = 0
-        previous = None
-        before = datetime.datetime.now()
-        gql = 'select twitter_id from Score '
-        if memcache.get('cleanup_maxdupe') is not None:
-            gql += 'where twitter_id > {} '.format(
-                memcache.get('cleanup_maxdupe'))
-            logging.warn(
-                'starting cleanup from {}'.format(
-                    memcache.get('cleanup_maxdupe')))
-        gql += ' order by twitter_id, last_updated'
-        try:
-            for line in ndb.gql(gql):
-                scanned += 1
-                memcache.set('cleanup_maxdupe', line.twitter_id)
-                if previous == line.twitter_id:
-                    line.key.delete_async()
-                    deleted += 1
-                    logging.info(
-                        'Removing duplicate score for {} after scanning {}'
-                        ', deleting {}'.format(
-                            line.twitter_id, scanned, deleted))
-                if (datetime.datetime.now() - before).seconds > 590:
-                    # Bail out before we are kicked out
-                    logging.warn(
-                        'Bailing out before timing out after {} scanned '
-                        'and {} deleted'.format(scanned, deleted))
-                    return None
-                else:
-                    previous = line.twitter_id
-        except Timeout:
-            # We'll catch this one the next time.
-            logging.warn(
-                'Recovered from a timeout after {} scanned '
-                'and {} deleted'.format(scanned, deleted))
-        except CancelledError:
-            # We should bail out now to avoid an error.
-            logging.warn(
-                'Bailing out after a CancelledError, after {} scanned '
-                'and {} deleted'.format(scanned, deleted))
-            return None
-        except OverQuotaError:
-            logging.critical('We are over quota after {} scanned '
-                             'and {} deleted'.format(scanned, deleted))
-            return None
-        # If we got to this point, we are exiting normally after finishing
-        # going over all scores. We can delete the bookmark from the cache.
-        if scanned == 0:
-            memcache.delete('cleanup_maxdupe')
-            logging.warn(
-                'Cleanup completed, {} dupes deleted of {} scanned'.format(
-                    deleted, scanned))
+        pass
 
 
 class WorstHandler(webapp2.RequestHandler):
