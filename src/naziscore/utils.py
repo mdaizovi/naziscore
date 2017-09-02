@@ -20,6 +20,26 @@ from google.appengine.api.urlfetch_errors import (
 )
 
 
+
+class AsyncURLExpander():
+    def __init__(self, url):
+        try:
+            self.key = urllib.quote_plus(urlparse.urlparse(url).geturl())
+        except KeyError:
+            logging.error(u"Couldn't parse {}".format(url))
+            raise
+        self.expanded = memcache.get(self.key)
+        if self.expanded is None:
+            self.rpc = urlfetch.create_rpc()
+            urlfetch.make_fetch_call(rpc, url)
+
+    def get_result(self):
+        if self.expanded is None:
+            self.expanded = self.rpc.get_result().final_url
+            memcache.set(self.key, expanded)
+        return self.expanded
+
+
 def expanded_url(url):
     "Expands the URL using the location header protocol. Returns the URL."
     try:
@@ -29,9 +49,9 @@ def expanded_url(url):
         raise
     expanded = memcache.get(key)
     if expanded is not None:
-        logging.info('URL expansion cache hit.')
+        logging.info('URL expansion cache hit: {}'.format(url))
         return expanded
-    logging.info('URL expansion cache miss.')
+    logging.info('URL expansion cache miss: {}'.format(url))
     while True:
         try:
             eu = urlfetch.Fetch(

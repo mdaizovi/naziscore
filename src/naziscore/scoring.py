@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import os
+import urlparse
 
 from inspect import isfunction
 from itertools import chain
@@ -293,19 +294,17 @@ def points_from_external_links(profile, timeline, depth):
              [t['retweeted_status']['entities']['urls'] for t in
               timeline if 'retweeted_status' in t] if s] + [
                   t['entities']['urls'] for t in timeline if 'entities' in t]
-    for l in lists:
-        for u in l:
-            url = u['expanded_url'] or u['url']
-            for um in URL_MASKERS:
-                if url.startswith('http://' + um) or url.startswith(
-                            'https://' + um):
-                    u['expanded_url'] = expanded_url(url)
-                    break
-            for nw in FAKE_NEWS_WEBSITES:
-                if url.startswith('http://' + nw) or url.startswith(
-                        'https://' + nw):
-                    result += POINTS_FAKE_NEWS
-                    break
+    url_list = [url for sublist in lists for url in sublist]
+    for url in {u['expanded_url'] or u['url'] for u in url_list}:
+        try:
+            purl =  urlparse.urlparse(url)
+        except KeyError:
+            logging.error(u'Unable to score {}'.format(url))
+            break
+        if purl.netloc in URL_MASKERS:
+            url = expanded_url(url)
+        if purl.netloc in FAKE_NEWS_WEBSITES:
+            result += POINTS_FAKE_NEWS
     if result > 0:
         logging.debug(
             '{} scored {} for fake news'.format(
@@ -317,22 +316,20 @@ def points_from_actual_news_sites(profile, timeline, depth):
     "Returns POINTS_ACTUAL_NEWS points for each link from actual news sources."
     result = 0
     lists = [s for s in
-             [t['retweeted_status']['entities']['urls']for t in
+             [t['retweeted_status']['entities']['urls'] for t in
               timeline if 'retweeted_status' in t] if s] + [
                   t['entities']['urls'] for t in timeline if 'entities' in t]
-    for l in lists:
-        for u in l:
-            url = u['expanded_url'] or u['url']
-            for um in URL_MASKERS:
-                if url.startswith('http://' + um) or url.startswith(
-                            'https://' + um):
-                    u['expanded_url'] = expanded_url(url)
-                    break
-            for nw in ACTUAL_NEWS_WEBSITES:
-                if url.startswith('http://' + nw) or url.startswith(
-                        'https://' + nw):
-                    result += POINTS_ACTUAL_NEWS
-                    break
+    url_list = [url for sublist in lists for url in sublist]
+    for url in {u['expanded_url'] or u['url'] for u in url_list}:
+        try:
+            purl =  urlparse.urlparse(url)
+        except KeyError:
+            logging.error(u'Unable to score {}'.format(url))
+            break
+        if purl.netloc in URL_MASKERS:
+            url = expanded_url(url)
+        if purl.netloc in ACTUAL_NEWS_WEBSITES:
+            result += POINTS_ACTUAL_NEWS
     if result > 0:
         logging.debug(
             '{} scored {} for fake news'.format(
