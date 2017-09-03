@@ -297,13 +297,13 @@ def points_from_external_links(profile, timeline, depth):
     url_list = [url for sublist in lists for url in sublist]
     for url in {u['expanded_url'] or u['url'] for u in url_list}:
         try:
-            purl =  urlparse.urlparse(url)
+            purl = urlparse.urlparse(url)
         except KeyError:
             logging.error(u'Unable to score {}'.format(url))
             break
         if purl.netloc in URL_MASKERS:
             url = expanded_url(url)
-        if purl.netloc in FAKE_NEWS_WEBSITES:
+        if any([u in url for u in FAKE_NEWS_WEBSITES]):
             result += POINTS_FAKE_NEWS
     if result > 0:
         logging.debug(
@@ -322,13 +322,13 @@ def points_from_actual_news_sites(profile, timeline, depth):
     url_list = [url for sublist in lists for url in sublist]
     for url in {u['expanded_url'] or u['url'] for u in url_list}:
         try:
-            purl =  urlparse.urlparse(url)
+            purl = urlparse.urlparse(url)
         except KeyError:
             logging.error(u'Unable to score {}'.format(url))
             break
         if purl.netloc in URL_MASKERS:
             url = expanded_url(url)
-        if purl.netloc in ACTUAL_NEWS_WEBSITES:
+        if any([u in url for u in ACTUAL_NEWS_WEBSITES]):
             result += POINTS_ACTUAL_NEWS
     if result > 0:
         logging.debug(
