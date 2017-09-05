@@ -81,5 +81,5 @@ def expanded_url(url):
             # This is as far as we'll go expanding this URL, but since errors
             # can be transient, we won't cache this.
             logging.error(
-                u'fetching {} resulted in {}'.format(urll.encode('utf-8'), e))
+                u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
             return url  # Return the last good one.
