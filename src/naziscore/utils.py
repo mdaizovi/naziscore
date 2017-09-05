@@ -50,9 +50,9 @@ def expanded_url(url):
         raise
     expanded = memcache.get(key)
     if expanded is not None:
-        logging.info(u'URL expansion cache hit: {}'.format(url))
+        logging.debug(u'URL expansion cache hit: {}'.format(url))
         return expanded
-    logging.info(u'URL expansion cache miss: {}'.format(url))
+    logging.debug(u'URL expansion cache miss: {}'.format(url))
     while True:
         try:
             eu = urlfetch.Fetch(
@@ -70,7 +70,7 @@ def expanded_url(url):
             else:
                 url = eu
         except InvalidURLError as e:
-            logging.info(u'fetching {} resulted in {}'.format(url, e))
+            logging.error(u'fetching {} resulted in {}'.format(url, e))
             url = purl.scheme + '://' + purl.netloc + eu
         except (CertificateError,
                 DeadlineExceededError,
