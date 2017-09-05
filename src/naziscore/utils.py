@@ -50,16 +50,19 @@ def expanded_url(url):
         raise
     expanded = memcache.get(key)
     if expanded is not None:
-        logging.debug(u'URL expansion cache hit: {}'.format(url))
+        logging.debug(
+            u'URL expansion cache hit: {}'.format(url.encode('utf-8')))
         return expanded
-    logging.debug(u'URL expansion cache miss: {}'.format(url))
+    logging.debug(u'URL expansion cache miss: {}'.format(url.encode('utf-8')))
     while True:
         try:
             eu = urlfetch.Fetch(
-                url, follow_redirects=False).headers.get('location', url)
+                url,
+                follow_redirects=False
+            ).headers.get('location', url.encode('utf-8'))
             purl = urlparse.urlparse(eu)
             if purl.scheme == '':  # It's relative (hopefully root-relative)
-                logging.info(u'URL {} is relative'.format(url))
+                logging.info(u'URL {} is relative'.format(url.encode('utf-8')))
                 purl = urlparse.urlparse(url)
                 expanded = purl.scheme + '://' + purl.netloc + eu
                 memcache.set(key, expanded)
@@ -70,7 +73,8 @@ def expanded_url(url):
             else:
                 url = eu
         except InvalidURLError as e:
-            logging.error(u'fetching {} resulted in {}'.format(url, e))
+            logging.error(
+                u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
             url = purl.scheme + '://' + purl.netloc + eu
         except (CertificateError,
                 DeadlineExceededError,
