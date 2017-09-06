@@ -60,7 +60,8 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                     encoding='utf-8')
                 memcache.set(
                     'screen_name:' + screen_name, result, 86400)  # 1 day
-                self.response.headers['Cache-control'] = 'public, max-age=86400'
+                self.response.headers['Cache-control'] = \
+                    'public, max-age=86400'
         self.response.out.write(result)
 
 
@@ -92,7 +93,8 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                      'score': score.score,
                      'grades': score.grades}, encoding='utf-8')
                 memcache.set('twitter_id:{}'.format(twitter_id), result, 86400)
-                self.response.headers['Cache-control'] = 'public, max-age=86400'
+                self.response.headers['Cache-control'] = \
+                    'public, max-age=86400'
         self.response.out.write(result)
 
 
