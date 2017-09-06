@@ -146,26 +146,6 @@ def get_score_by_twitter_id(twitter_id, depth):
         raise ndb.Return(score)
 
 
-def refresh_score_by_screen_name(screen_name):
-    try:
-        task = taskqueue.Task(
-            name=('{}_{}'.format(
-                screen_name,
-                os.environ['CURRENT_VERSION_ID'].split('.')[0])),
-            params={
-                'screen_name': screen_name,
-                'depth': MAX_DEPTH  # Prevent cascades
-            })
-        task.add('refresh')
-    except taskqueue.TaskAlreadyExistsError:
-        # We already are going to check this person. There is nothing
-        # to do here.
-        logging.warning('Refresh for {} already scheduled'.format(screen_name))
-    except taskqueue.TombstonedTaskError:
-        # This task is too recent. We shouldn't try again so soon.
-        logging.warning('Refresh for {} tombstoned'.format(screen_name))
-
-
 def calculated_score(profile_json, timeline_json, depth):
     """Returns the score for the recent posts JSON"""
     g = globals()
