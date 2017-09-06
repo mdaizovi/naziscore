@@ -12,12 +12,7 @@ from google.appengine.api import (
     memcache,
     urlfetch
 )
-from google.appengine.api.datastore_errors import Timeout
 from google.appengine.ext import ndb
-from google.appengine.runtime.apiproxy_errors import (
-    CancelledError,
-    OverQuotaError
-)
 
 from naziscore.deplorable_constants import KNOWN_SITES
 from naziscore.models import Score
@@ -25,7 +20,6 @@ from naziscore.scoring import (
     calculated_score,
     get_score_by_screen_name,
     get_score_by_twitter_id,
-    refresh_score_by_screen_name,
     MAX_DEPTH,
 )
 from naziscore.twitter import (
