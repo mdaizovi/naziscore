@@ -218,80 +218,96 @@ class WorstHandler(webapp2.RequestHandler):
     "Retrieves the n worst scores and returns it as a CSV."
 
     def get(self):
-        "Naïve implementation."
-        response_writer = csv.writer(
-            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+        cached = memcache.get('worst_handler')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
 
-        # Instruct endpoint to cache for 1 day.
-        self.response.headers['Cache-control'] = 'public, max-age=86400'
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
 
-        # Using GQL as a test - will create new index
-        for line in ndb.gql(
-                'select distinct screen_name, twitter_id, score '
-                'from Score order by score desc limit 20000'):
-            response_writer.writerow(
-                [line.screen_name, line.twitter_id, line.score])
+            # Using GQL as a test - will create new index
+            for line in ndb.gql(
+                    'select distinct screen_name, twitter_id, score '
+                    'from Score order by score desc limit 20000'):
+                response_writer.writerow(
+                    [line.screen_name, line.twitter_id, line.score])
+            memcache.set('worst_handler', self.response.text, 86400)
 
 
 class WorstHashtagsHandler(webapp2.RequestHandler):
     "Gets the hashtags most used by the worst offenders as a CSV."
 
     def get(self):
-        "Naïve implementation."
-        response_writer = csv.writer(
-            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+        cached = memcache.get('worst_hashtags')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
 
-        # Instruct endpoint to cache for 1 day.
-        self.response.headers['Cache-control'] = 'public, max-age=86400'
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
 
-        c = Counter()
-        for s in Score.query().order(-Score.score).iter(
-                    limit=5000, projection=(Score.hashtags)):
-            if s.hashtags is not None:
-                c.update((h.lower() for h in s.hashtags))
-        for tag, tag_count in c.most_common(100):
-            response_writer.writerow(
-                [tag, tag_count])
+            c = Counter()
+            for s in Score.query().order(-Score.score).iter(
+                        limit=5000, projection=(Score.hashtags)):
+                if s.hashtags is not None:
+                    c.update((h.lower() for h in s.hashtags))
+            for tag, tag_count in c.most_common(100):
+                response_writer.writerow(
+                    [tag, tag_count])
+            memcache.set('worst_hashtags', self.response.text, 86400)
 
 
 class WorstWebsitesHandler(webapp2.RequestHandler):
     "Gets the websites most used by the worst offenders as a CSV."
 
     def get(self):
-        "Naïve implementation."
-        response_writer = csv.writer(
-            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+        cached = memcache.get('worst_websitess')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
 
-        # Instruct endpoint to cache for 1 day.
-        self.response.headers['Cache-control'] = 'public, max-age=86400'
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
 
-        c = Counter()
-        for s in Score.query().order(-Score.score).iter(
-                    limit=5000, projection=(Score.websites)):
-            if s.websites is not None:
-                c.update((h.lower() for h in s.websites))
-        for site, site_count in c.most_common(200):
-            response_writer.writerow(
-                [site, site_count])
+            c = Counter()
+            for s in Score.query().order(-Score.score).iter(
+                        limit=5000, projection=(Score.websites)):
+                if s.websites is not None:
+                    c.update((h.lower() for h in s.websites))
+            for site, site_count in c.most_common(200):
+                response_writer.writerow(
+                    [site, site_count])
+            memcache.set('worst_websitess', self.response.text, 86400)
 
 
 class WorstUnknownWebsitesHandler(webapp2.RequestHandler):
     "Gets the uncatalogued websites most used by the worst offenders as a CSV."
 
     def get(self):
-        "Naïve implementation."
-        response_writer = csv.writer(
-            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+        cached = memcache.get('worst_unknown_websites')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
 
-        # Instruct endpoint to cache for 1 day.
-        self.response.headers['Cache-control'] = 'public, max-age=86400'
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
 
-        c = Counter()
-        for s in Score.query().order(-Score.score).iter(
-                    limit=5000, projection=(Score.websites)):
-            if s.websites is not None:
-                c.update((h.lower() for h in s.websites
-                          if h.lower() not in KNOWN_SITES))
-        for site, site_count in c.most_common(200):
-            response_writer.writerow(
-                [site, site_count])
+            c = Counter()
+            for s in Score.query().order(-Score.score).iter(
+                        limit=5000, projection=(Score.websites)):
+                if s.websites is not None:
+                    c.update((h.lower() for h in s.websites
+                              if h.lower() not in KNOWN_SITES))
+            for site, site_count in c.most_common(200):
+                response_writer.writerow(
+                    [site, site_count])
+            memcache.set('worst_unknown_websites', self.response.text, 86400)
