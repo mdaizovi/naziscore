@@ -4,7 +4,7 @@ threadsafe: yes
 instance_class: F1
 automatic_scaling:
   min_idle_instances: 0
-  max_idle_instances: 2  # default value
+  max_idle_instances: 1
 
 builtins:
 - remote_api: yes
