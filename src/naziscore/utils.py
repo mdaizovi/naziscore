@@ -56,9 +56,10 @@ def expanded_url(url):
     logging.debug(u'URL expansion cache miss: {}'.format(url.encode('utf-8')))
     while True:
         try:
-            eu = urlfetch.Fetch(
+            eu = urlfetch.fetch(
                 url,
-                follow_redirects=False
+                follow_redirects=False,
+                deadline = 60  # Give it one minute until timeout.
             ).headers.get('location', url.encode('utf-8'))
             purl = urlparse.urlparse(eu)
             if purl.scheme == '':  # It's relative (hopefully root-relative)
