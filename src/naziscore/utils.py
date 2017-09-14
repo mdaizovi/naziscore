@@ -52,37 +52,41 @@ def expanded_url(url):
         raise
     expanded = memcache.get(key)
     if expanded is not None:
-        logging.debug(
-            u'URL expansion cache hit: {}'.format(url.encode('utf-8')))
-    else:
-        logging.debug(
-            u'URL expansion cache miss: {}'.format(url.decode('utf-8')))
+        # logging.debug(
+        #     u'URL expansion cache hit: {}'.format(url.encode('utf-8')))
+        return expanded
+    # logging.debug(u'URL expansion cache miss: {}'.format(url.encode('utf-8')))
+    while True:
         try:
-            result = urlfetch.fetch(
+            eu = urlfetch.fetch(
                 url,
-                follow_redirects=True,
-                deadline=60  # Give it one minute until timeout.
-            )
-            if result.status_code == 200:
-                expanded = result.final_url
+                follow_redirects=False,
+                deadline = 60  # Give it one minute until timeout.
+            ).headers.get('location', url.encode('utf-8'))
+            purl = urlparse.urlparse(eu)
+            if purl.scheme == '':  # It's relative (hopefully root-relative)
+                logging.info(u'URL {} is relative'.format(url.encode('utf-8')))
+                purl = urlparse.urlparse(url)
+                expanded = purl.scheme + '://' + purl.netloc + eu
                 memcache.set(key, expanded)
+                return expanded
+            if url == eu:
+                memcache.set(key, eu)
+                return eu
             else:
-                expanded = ''
+                url = eu
         except InvalidURLError as e:
             logging.error(
                 u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
             url = purl.scheme + '://' + purl.netloc + eu
-        except (
-                CertificateError,
+        except (CertificateError,
                 DeadlineExceededError,
                 DownloadError,
                 DNSLookupFailedError,
                 ResponseTooLargeError,
-                SSLCertificateError,
-                UnicodeDecodeError,
-                TooManyRedirectsError
-        ) as e:
+                SSLCertificateError) as e:
+            # This is as far as we'll go expanding this URL, but since errors
+            # can be transient, we won't cache this.
             logging.error(
                 u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
-            raise
-    return expanded
+            return url  # Return the last good one.
