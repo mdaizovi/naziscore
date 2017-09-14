@@ -52,27 +52,20 @@ def expanded_url(url):
     if expanded is not None:
         logging.debug(
             u'URL expansion cache hit: {}'.format(url.encode('utf-8')))
-        return expanded
-    logging.debug(u'URL expansion cache miss: {}'.format(url.encode('utf-8')))
-    while True:
+    else:
+        logging.debug(
+            u'URL expansion cache miss: {}'.format(url.decode('utf-8')))
         try:
-            eu = urlfetch.fetch(
+            result = urlfetch.fetch(
                 url,
-                follow_redirects=False,
-                deadline = 60  # Give it one minute until timeout.
-            ).headers.get('location', url.encode('utf-8'))
-            purl = urlparse.urlparse(eu)
-            if purl.scheme == '':  # It's relative (hopefully root-relative)
-                logging.info(u'URL {} is relative'.format(url.encode('utf-8')))
-                purl = urlparse.urlparse(url)
-                expanded = purl.scheme + '://' + purl.netloc + eu
+                follow_redirects=True,
+                deadline=60  # Give it one minute until timeout.
+            )
+            if result.status_code == 200:
+                expanded = result.final_url
                 memcache.set(key, expanded)
-                return expanded
-            if url == eu:
-                memcache.set(key, eu)
-                return eu
             else:
-                url = eu
+                expanded = ''
         except InvalidURLError as e:
             logging.error(
                 u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
@@ -82,9 +75,9 @@ def expanded_url(url):
                 DownloadError,
                 DNSLookupFailedError,
                 ResponseTooLargeError,
-                SSLCertificateError) as e:
-            # This is as far as we'll go expanding this URL, but since errors
-            # can be transient, we won't cache this.
+                SSLCertificateError,
+                UnicodeDecodeError) as e:
             logging.error(
                 u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
-            return url  # Return the last good one.
+            raise
+    return expanded
