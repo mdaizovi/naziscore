@@ -11,12 +11,13 @@ from google.appengine.api import (
     urlfetch
 )
 from google.appengine.api.urlfetch_errors import (
+    DNSLookupFailedError,
     DeadlineExceededError,
     DownloadError,
-    DNSLookupFailedError,
     InvalidURLError,
     ResponseTooLargeError,
-    SSLCertificateError
+    SSLCertificateError,
+    TooManyRedirectsError,
 )
 
 
@@ -42,6 +43,7 @@ class AsyncURLExpander():
 
 def expanded_url(url):
     "Expands the URL using the location header protocol. Returns the URL."
+    logging.info('Expanding ' + url)
     try:
         key = urllib.quote_plus(
             urlparse.urlparse(url.encode('utf-8')).geturl())
@@ -70,13 +72,16 @@ def expanded_url(url):
             logging.error(
                 u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
             url = purl.scheme + '://' + purl.netloc + eu
-        except (CertificateError,
+        except (
+                CertificateError,
                 DeadlineExceededError,
                 DownloadError,
                 DNSLookupFailedError,
                 ResponseTooLargeError,
                 SSLCertificateError,
-                UnicodeDecodeError) as e:
+                UnicodeDecodeError,
+                TooManyRedirectsError
+        ) as e:
             logging.error(
                 u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
             raise
