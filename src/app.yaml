@@ -4,7 +4,9 @@ threadsafe: yes
 instance_class: F1
 automatic_scaling:
   min_idle_instances: 0
-  max_idle_instances: 0
+  max_idle_instances: 1
+  min_pending_latency: 1s
+  max_pending_latency: 5s
 
 builtins:
 - remote_api: yes
