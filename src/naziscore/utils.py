@@ -59,7 +59,7 @@ def expanded_url(url):
     while True:
         try:
             eu = urlfetch.fetch(
-                url,
+                url.decode('utf-8'),  # Location came as a raw string
                 follow_redirects=False,
                 deadline = 60  # Give it one minute until timeout.
             ).headers.get('location', url.encode('utf-8'))
