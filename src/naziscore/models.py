@@ -48,7 +48,7 @@ class Score(ndb.Model):
             # check
             timeline = (json.loads(self.timeline_text)
                         if isinstance(self.profile_text, (str, unicode))
-                        else self.profile_text)
+                        else self.timeline_text)
             if 'error' not in timeline:
                 return list(set(
                     itertools.chain(
@@ -66,7 +66,7 @@ class Score(ndb.Model):
             # check
             timeline = (json.loads(self.timeline_text)
                         if isinstance(self.profile_text, (str, unicode))
-                        else self.profile_text)
+                        else self.timeline_text)
             if 'error' not in timeline:
                 lists = [s for s in
                          [t['retweeted_status']['entities']['urls']for t in
