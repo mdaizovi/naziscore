@@ -71,10 +71,10 @@ def expanded_url(url):
                 memcache.set(key, expanded)
                 return expanded
             if url == eu:
-                memcache.set(key, eu)
-                return eu
+                memcache.set(key, url)  # We are stuck here
+                return url
             else:
-                url = eu
+                url = eu  # Go for the next iteration
         except InvalidURLError as e:
             logging.error(
                 u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
@@ -84,9 +84,11 @@ def expanded_url(url):
                 DownloadError,
                 DNSLookupFailedError,
                 ResponseTooLargeError,
-                SSLCertificateError) as e:
+                SSLCertificateError,
+                UnicodeDecodeError) as e:
             # This is as far as we'll go expanding this URL, but since errors
             # can be transient, we won't cache this.
+            memcache.set(key, url)
             logging.error(
                 u'fetching {} resulted in {}'.format(url.encode('utf-8'), e))
             return url  # Return the last good one.
