@@ -12,8 +12,9 @@ indexes:
 
 - kind: Score
   properties:
-  - name: last_updated
+  - name: score
   - name: screen_name
+  - name: twitter_id
 
 - kind: Score
   properties:
@@ -33,8 +34,3 @@ indexes:
   - name: score
     direction: desc
   - name: websites
-
-- kind: Score
-  properties:
-  - name: twitter_id
-  - name: last_updated
