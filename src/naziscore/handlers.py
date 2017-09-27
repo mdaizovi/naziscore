@@ -214,8 +214,30 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
         pass
 
 
+class BestHandler(webapp2.RequestHandler):
+    "Retrieves the best scores and returns it as a CSV."
+
+    def get(self):
+        cached = memcache.get('best_handler')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
+
+            for line in ndb.gql(
+                    'select distinct screen_name, twitter_id, score '
+                    'from Score order by score limit 20000'):
+                response_writer.writerow(
+                    [line.screen_name, line.twitter_id, line.score])
+            memcache.set('best_handler', self.response.text, 86400)
+
+
 class WorstHandler(webapp2.RequestHandler):
-    "Retrieves the n worst scores and returns it as a CSV."
+    "Retrieves the worst scores and returns it as a CSV."
 
     def get(self):
         cached = memcache.get('worst_handler')
