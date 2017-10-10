@@ -161,11 +161,11 @@ PEPES = (
     u'✠',
     u'卍',
     u'卐',
-    u'🐸',
-    u'👌',
-    u'👌🏻',
-    u'👌🏼',
-    u'🥛',
+    u'🐸',  # Frog
+    u'👌',  # General OK
+    u'👌🏻',  # White OK
+    u'👌🏼',  # Medium OK
+    u'🥛',  # Glass of milk
 )
 
 # List collected from
