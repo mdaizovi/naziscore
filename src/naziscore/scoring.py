@@ -82,18 +82,25 @@ def get_score_by_screen_name(screen_name, depth):
     if score is None:
         # If we don't have one, we need to calculate one.
         try:
-            yield taskqueue.Task(
-                name=('{}_{}'.format(
+            task_name = '{}_{}'.format(
                     screen_name,
-                    os.environ['CURRENT_VERSION_ID'].split('.')[0])),
+                    os.environ['CURRENT_VERSION_ID'].split('.')[0])
+            queue_name = 'scoring-direct' if depth == 0 else 'scoring-indirect'
+            yield taskqueue.Task(
+                name=task_name,
                 params={
                     'screen_name': screen_name,
                     'depth': depth
-                }).add_async(
-                    'scoring-direct' if depth == 0 else 'scoring-indirect')
-            # TODO: If we add it to the scoring-direct queue, we should remove
+                }).add_async(queue_name)
+            # If we add it to the scoring-direct queue, we should remove
             # the corresponding task from the scoring-indirect queue at this
             # point.
+            if queue_name == 'scoring-direct':
+                logging.debug('Deleting task {} from scoring-indirect'.format(
+                    task_name))
+                taskqueue.Queue('scoring-indirect').delete_tasks(
+                taskqueue.Task(name=task_name))
+
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
