@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import os
+import urlparse
 
 from inspect import isfunction
 from itertools import chain
@@ -81,18 +82,25 @@ def get_score_by_screen_name(screen_name, depth):
     if score is None:
         # If we don't have one, we need to calculate one.
         try:
-            yield taskqueue.Task(
-                name=('{}_{}'.format(
+            task_name = '{}_{}'.format(
                     screen_name,
-                    os.environ['CURRENT_VERSION_ID'].split('.')[0])),
+                    os.environ['CURRENT_VERSION_ID'].split('.')[0])
+            queue_name = 'scoring-direct' if depth == 0 else 'scoring-indirect'
+            yield taskqueue.Task(
+                name=task_name,
                 params={
                     'screen_name': screen_name,
                     'depth': depth
-                }).add_async(
-                    'scoring-direct' if depth == 0 else 'scoring-indirect')
-            # TODO: If we add it to the scoring-direct queue, we should remove
+                }).add_async(queue_name)
+            # If we add it to the scoring-direct queue, we should remove
             # the corresponding task from the scoring-indirect queue at this
             # point.
+            if queue_name == 'scoring-direct':
+                logging.debug('Deleting task {} from scoring-indirect'.format(
+                    task_name))
+                taskqueue.Queue('scoring-indirect').delete_tasks(
+                taskqueue.Task(name=task_name))
+
         except taskqueue.TaskAlreadyExistsError:
             # We already are going to check this person. There is nothing
             # to do here.
@@ -143,26 +151,6 @@ def get_score_by_twitter_id(twitter_id, depth):
         raise ndb.Return(None)
     else:
         raise ndb.Return(score)
-
-
-def refresh_score_by_screen_name(screen_name):
-    try:
-        task = taskqueue.Task(
-            name=('{}_{}'.format(
-                screen_name,
-                os.environ['CURRENT_VERSION_ID'].split('.')[0])),
-            params={
-                'screen_name': screen_name,
-                'depth': MAX_DEPTH  # Prevent cascades
-            })
-        task.add('refresh')
-    except taskqueue.TaskAlreadyExistsError:
-        # We already are going to check this person. There is nothing
-        # to do here.
-        logging.warning('Refresh for {} already scheduled'.format(screen_name))
-    except taskqueue.TombstonedTaskError:
-        # This task is too recent. We shouldn't try again so soon.
-        logging.warning('Refresh for {} tombstoned'.format(screen_name))
 
 
 def calculated_score(profile_json, timeline_json, depth):
@@ -293,19 +281,20 @@ def points_from_external_links(profile, timeline, depth):
              [t['retweeted_status']['entities']['urls'] for t in
               timeline if 'retweeted_status' in t] if s] + [
                   t['entities']['urls'] for t in timeline if 'entities' in t]
-    for l in lists:
-        for u in l:
-            url = u['expanded_url'] or u['url']
-            for um in URL_MASKERS:
-                if url.startswith('http://' + um) or url.startswith(
-                            'https://' + um):
-                    u['expanded_url'] = expanded_url(url)
-                    break
-            for nw in FAKE_NEWS_WEBSITES:
-                if url.startswith('http://' + nw) or url.startswith(
-                        'https://' + nw):
-                    result += POINTS_FAKE_NEWS
-                    break
+    url_list = [url for sublist in lists for url in sublist]
+    for url in {u['expanded_url'] or u['url'] for u in url_list}:
+        try:
+            purl = urlparse.urlparse(url)
+        except (
+            KeyError,
+            TypeError,
+        ):
+            logging.error(u'Unable to score {}'.format(url))
+            break
+        if purl.netloc in URL_MASKERS:
+            url = expanded_url(url)
+        if any([(u in url) for u in FAKE_NEWS_WEBSITES]):
+            result += POINTS_FAKE_NEWS
     if result > 0:
         logging.debug(
             '{} scored {} for fake news'.format(
@@ -317,22 +306,23 @@ def points_from_actual_news_sites(profile, timeline, depth):
     "Returns POINTS_ACTUAL_NEWS points for each link from actual news sources."
     result = 0
     lists = [s for s in
-             [t['retweeted_status']['entities']['urls']for t in
+             [t['retweeted_status']['entities']['urls'] for t in
               timeline if 'retweeted_status' in t] if s] + [
                   t['entities']['urls'] for t in timeline if 'entities' in t]
-    for l in lists:
-        for u in l:
-            url = u['expanded_url'] or u['url']
-            for um in URL_MASKERS:
-                if url.startswith('http://' + um) or url.startswith(
-                            'https://' + um):
-                    u['expanded_url'] = expanded_url(url)
-                    break
-            for nw in ACTUAL_NEWS_WEBSITES:
-                if url.startswith('http://' + nw) or url.startswith(
-                        'https://' + nw):
-                    result += POINTS_ACTUAL_NEWS
-                    break
+    url_list = [url for sublist in lists for url in sublist]
+    for url in {u['expanded_url'] or u['url'] for u in url_list}:
+        try:
+            purl = urlparse.urlparse(url)
+        except (
+            KeyError,
+            TypeError
+        ):
+            logging.error(u'Unable to score {}'.format(url))
+            break
+        if purl.netloc in URL_MASKERS:
+            url = expanded_url(url)
+        if any([(u in url) for u in ACTUAL_NEWS_WEBSITES]):
+            result += POINTS_ACTUAL_NEWS
     if result > 0:
         logging.debug(
             '{} scored {} for fake news'.format(

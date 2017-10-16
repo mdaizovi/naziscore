@@ -20,6 +20,7 @@ HASHTAGS = (
     '#benghazi',
     '#buildthewall',
     '#ccot',
+    '#chasingdownwhites',
     '#christianidentity',
     '#clintoncollusion',
     '#clintoncrimefamily',
@@ -90,6 +91,7 @@ HASHTAGS = (
     '#psychojoe',
     '#racemixingstinks',
     '#racialist',
+    '#rapejihad',
     '#rednationrising',
     '#regressiveleft',
     '#russiahoax',
@@ -159,11 +161,11 @@ PEPES = (
     u'✠',
     u'卍',
     u'卐',
-    u'🐸',
-    u'👌',
-    u'👌🏻',
-    u'👌🏼',
-    u'🥛',
+    u'🐸',  # Frog
+    u'👌',  # General OK
+    u'👌🏻',  # White OK
+    u'👌🏼',  # Medium OK
+    u'🥛',  # Glass of milk
 )
 
 # List collected from
@@ -1176,18 +1178,21 @@ FAKE_NEWS_WEBSITES = (
 ) + (  # Others added later
     '10news.one',
     '4chan.org',
+    'almasdarnews.com',
     'americanactionnetwork.org',
     'amgreatness.com',
     'anncoulter.com',
     'archbishopcranmer.com'
     'bigleaguepolitics.com',
     'bigliebook.com',
+    'bitchute.com',
     'byhisgrace.com',
     'christianidentitychurch.net'
     'circa.com',
     'conservativedailynews.com',
     'conservativepost.com',
     'constitution.com',
+    'cosiskey.com',
     'creepingsharia.wordpress.com',
     'crusaderjournal.com',
     'dailydosepolitics.com',
@@ -1200,23 +1205,27 @@ FAKE_NEWS_WEBSITES = (
     'freecriticalthinking.org',
     'friatider.se',
     'fxn.ws',
+    'gab.ai',
     'gatestoneinstitute.org',
     'grrrgraphics.com',
     'hannity.com',
     'hipsterracist.wordpress.com',
-    'ijr.com',
     'insider.foxnews.com',
     'lawnewz.com',
     'libslayer2013.wordpress.com',
+    'libya360.wordpress.com',
     'newobserveronline.com',
     'occidentaldissent.com',
     'patdollard.com',
     'patriotjournalist.com',
+    'proud-patriots.com',
+    'pscp.tv',
     'radioaryan.com',
     'reddit.com/r/The_Donald/',
     'rednationrising.wordpress.com',
     'rushlimbaugh.com',
     'speisa.com',
+    'syria360.wordpress.com',
     'thecolumbiabugle.com',
     'thefederalist.com',
     'theneworder.org',
@@ -1226,11 +1235,15 @@ FAKE_NEWS_WEBSITES = (
     'thepeoplessheriff.com',
     'theroperreportsite.wordpress.com',
     'theshieldmaidens.wordpress.com',
+    'tsarizm.com',
     'turningpoint.news',
     'usfreedomarmy.com',
+    'vivaliberty.com',
     'voat.co/v/pizzagate',
+    'waynedupree.com',
     'westmonster.com',
     'whitegenocideproject.com',
+    'worldtoday365.info',
 )
 
 ACTUAL_NEWS_WEBSITES = (  # And their shorteners
@@ -1308,7 +1321,12 @@ ACTUAL_NEWS_WEBSITES = (  # And their shorteners
 
 # URL shorteners that may be used to obfuscate suspicious websites.
 URL_MASKERS = (
+    'aml.ink',
     'amzn.to',
+    'jwatch.us',
+    'lnkd.in',
+    'nyti.ms',
+    'tinyurl.com',
     'bit.ly',
     'buff.ly',
     'cbsloc.al',

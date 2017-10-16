@@ -12,12 +12,7 @@ from google.appengine.api import (
     memcache,
     urlfetch
 )
-from google.appengine.api.datastore_errors import Timeout
 from google.appengine.ext import ndb
-from google.appengine.runtime.apiproxy_errors import (
-    CancelledError,
-    OverQuotaError
-)
 
 from naziscore.deplorable_constants import KNOWN_SITES
 from naziscore.models import Score
@@ -25,7 +20,6 @@ from naziscore.scoring import (
     calculated_score,
     get_score_by_screen_name,
     get_score_by_twitter_id,
-    refresh_score_by_screen_name,
     MAX_DEPTH,
 )
 from naziscore.twitter import (
@@ -54,8 +48,7 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                      'last_updated': None}, encoding='utf-8')
                 memcache.set(
                     'screen_name:' + screen_name, result, 5)  # 5 seconds
-                expires_date = (datetime.datetime.utcnow()
-                                + datetime.timedelta(seconds=2))
+                self.response.headers['Cache-control'] = 'public, max-age=5'
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
@@ -67,10 +60,8 @@ class ScoreByNameHandler(webapp2.RequestHandler):
                     encoding='utf-8')
                 memcache.set(
                     'screen_name:' + screen_name, result, 86400)  # 1 day
-                expires_date = (datetime.datetime.utcnow()
-                                + datetime.timedelta(1))
-            expires_str = expires_date.strftime("%d %b %Y %H:%M:%S GMT")
-            self.response.headers.add_header("Expires", expires_str)
+                self.response.headers['Cache-control'] = \
+                    'public, max-age=86400'
         self.response.out.write(result)
 
 
@@ -92,8 +83,7 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                      'last_updated': None}, encoding='utf-8')
                 memcache.set(
                     'twitter_id:{}'.format(twitter_id), result, 5)  # 5 seconds
-                expires_date = (datetime.datetime.utcnow()
-                                + datetime.timedelta(seconds=60))
+                self.response.headers['Cache-control'] = 'public, max-age=5'
             else:
                 # We have a score in the datastore.
                 result = json.dumps(
@@ -103,10 +93,8 @@ class ScoreByIdHandler(webapp2.RequestHandler):
                      'score': score.score,
                      'grades': score.grades}, encoding='utf-8')
                 memcache.set('twitter_id:{}'.format(twitter_id), result, 86400)
-                expires_date = (datetime.datetime.utcnow()
-                                + datetime.timedelta(1))
-            expires_str = expires_date.strftime("%d %b %Y %H:%M:%S GMT")
-            self.response.headers.add_header("Expires", expires_str)
+                self.response.headers['Cache-control'] = \
+                    'public, max-age=86400'
         self.response.out.write(result)
 
 
@@ -223,124 +211,125 @@ class CleanupRepeatedProfileHandler(webapp2.RequestHandler):
 
     @ndb.toplevel
     def get(self):
-        "Naïve implementation."
-        scanned = 0
-        deleted = 0
-        previous = None
-        before = datetime.datetime.now()
-        gql = 'select twitter_id from Score '
-        if memcache.get('cleanup_maxdupe') is not None:
-            gql += 'where twitter_id > {} '.format(
-                memcache.get('cleanup_maxdupe'))
-            logging.warn(
-                'starting cleanup from {}'.format(
-                    memcache.get('cleanup_maxdupe')))
-        gql += ' order by twitter_id, last_updated'
-        try:
-            for line in ndb.gql(gql):
-                scanned += 1
-                memcache.set('cleanup_maxdupe', line.twitter_id)
-                if previous == line.twitter_id:
-                    line.key.delete_async()
-                    deleted += 1
-                    logging.info(
-                        'Removing duplicate score for {} after scanning {}'
-                        ', deleting {}'.format(
-                            line.twitter_id, scanned, deleted))
-                if (datetime.datetime.now() - before).seconds > 590:
-                    # Bail out before we are kicked out
-                    logging.warn(
-                        'Bailing out before timing out after {} scanned '
-                        'and {} deleted'.format(scanned, deleted))
-                    return None
-                else:
-                    previous = line.twitter_id
-        except Timeout:
-            # We'll catch this one the next time.
-            logging.warn(
-                'Recovered from a timeout after {} scanned '
-                'and {} deleted'.format(scanned, deleted))
-        except CancelledError:
-            # We should bail out now to avoid an error.
-            logging.warn(
-                'Bailing out after a CancelledError, after {} scanned '
-                'and {} deleted'.format(scanned, deleted))
-            return None
-        except OverQuotaError:
-            logging.critical('We are over quota after {} scanned '
-                             'and {} deleted'.format(scanned, deleted))
-            return None
-        # If we got to this point, we are exiting normally after finishing
-        # going over all scores. We can delete the bookmark from the cache.
-        if scanned == 0:
-            memcache.delete('cleanup_maxdupe')
-            logging.warn(
-                'Cleanup completed, {} dupes deleted of {} scanned'.format(
-                    deleted, scanned))
+        pass
+
+
+class BestHandler(webapp2.RequestHandler):
+    "Retrieves the best scores and returns it as a CSV."
+
+    def get(self):
+        cached = memcache.get('best_handler')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
+
+            for line in ndb.gql(
+                    'select distinct screen_name, twitter_id, score '
+                    'from Score order by score limit 20000'):
+                response_writer.writerow(
+                    [line.screen_name, line.twitter_id, line.score])
+            memcache.set('best_handler', self.response.text, 86400)
 
 
 class WorstHandler(webapp2.RequestHandler):
-    "Retrieves the n worst scores and returns it as a CSV."
+    "Retrieves the worst scores and returns it as a CSV."
 
     def get(self):
-        "Naïve implementation."
-        response_writer = csv.writer(
-            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
-        # Using GQL as a test - will create new index
-        for line in ndb.gql(
-                'select distinct screen_name, twitter_id, score '
-                'from Score order by score desc limit 20000'):
-            response_writer.writerow(
-                [line.screen_name, line.twitter_id, line.score])
+        cached = memcache.get('worst_handler')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
+
+            # Using GQL as a test - will create new index
+            for line in ndb.gql(
+                    'select distinct screen_name, twitter_id, score '
+                    'from Score order by score desc limit 20000'):
+                response_writer.writerow(
+                    [line.screen_name, line.twitter_id, line.score])
+            memcache.set('worst_handler', self.response.text, 86400)
 
 
 class WorstHashtagsHandler(webapp2.RequestHandler):
     "Gets the hashtags most used by the worst offenders as a CSV."
 
     def get(self):
-        "Naïve implementation."
-        response_writer = csv.writer(
-            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
-        c = Counter()
-        for s in Score.query().order(-Score.score).iter(
-                    limit=5000, projection=(Score.hashtags)):
-            if s.hashtags is not None:
-                c.update((h.lower() for h in s.hashtags))
-        for tag, tag_count in c.most_common(100):
-            response_writer.writerow(
-                [tag, tag_count])
+        cached = memcache.get('worst_hashtags')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
+
+            c = Counter()
+            for s in Score.query().order(-Score.score).iter(
+                        limit=5000, projection=(Score.hashtags)):
+                if s.hashtags is not None:
+                    c.update((h.lower() for h in s.hashtags))
+            for tag, tag_count in c.most_common(100):
+                response_writer.writerow(
+                    [tag, tag_count])
+            memcache.set('worst_hashtags', self.response.text, 86400)
 
 
 class WorstWebsitesHandler(webapp2.RequestHandler):
     "Gets the websites most used by the worst offenders as a CSV."
 
     def get(self):
-        "Naïve implementation."
-        response_writer = csv.writer(
-            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
-        c = Counter()
-        for s in Score.query().order(-Score.score).iter(
-                    limit=5000, projection=(Score.websites)):
-            if s.websites is not None:
-                c.update((h.lower() for h in s.websites))
-        for site, site_count in c.most_common(200):
-            response_writer.writerow(
-                [site, site_count])
+        cached = memcache.get('worst_websitess')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
+
+            c = Counter()
+            for s in Score.query().order(-Score.score).iter(
+                        limit=5000, projection=(Score.websites)):
+                if s.websites is not None:
+                    c.update((h.lower() for h in s.websites))
+            for site, site_count in c.most_common(200):
+                response_writer.writerow(
+                    [site, site_count])
+            memcache.set('worst_websitess', self.response.text, 86400)
 
 
 class WorstUnknownWebsitesHandler(webapp2.RequestHandler):
     "Gets the uncatalogued websites most used by the worst offenders as a CSV."
 
     def get(self):
-        "Naïve implementation."
-        response_writer = csv.writer(
-            self.response, delimiter=',', quoting=csv.QUOTE_ALL)
-        c = Counter()
-        for s in Score.query().order(-Score.score).iter(
-                    limit=5000, projection=(Score.websites)):
-            if s.websites is not None:
-                c.update((h.lower() for h in s.websites
-                          if h.lower() not in KNOWN_SITES))
-        for site, site_count in c.most_common(200):
-            response_writer.writerow(
-                [site, site_count])
+        cached = memcache.get('worst_unknown_websites')
+        if cached:
+            self.response.out.write(cached)
+        else:
+            response_writer = csv.writer(
+                self.response, delimiter=',', quoting=csv.QUOTE_ALL)
+
+            # Instruct endpoint to cache for 1 day.
+            self.response.headers['Cache-control'] = 'public, max-age=86400'
+
+            c = Counter()
+            for s in Score.query().order(-Score.score).iter(
+                        limit=5000, projection=(Score.websites)):
+                if s.websites is not None:
+                    c.update((h.lower() for h in s.websites
+                              if h.lower() not in KNOWN_SITES))
+            for site, site_count in c.most_common(200):
+                response_writer.writerow(
+                    [site, site_count])
+            memcache.set('worst_unknown_websites', self.response.text, 86400)

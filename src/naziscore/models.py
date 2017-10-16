@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import collections
 import datetime
 import itertools
 import json
@@ -47,7 +48,7 @@ class Score(ndb.Model):
             # check
             timeline = (json.loads(self.timeline_text)
                         if isinstance(self.profile_text, (str, unicode))
-                        else self.profile_text)
+                        else self.timeline_text)
             if 'error' not in timeline:
                 return list(set(
                     itertools.chain(
@@ -65,7 +66,23 @@ class Score(ndb.Model):
             # check
             timeline = (json.loads(self.timeline_text)
                         if isinstance(self.profile_text, (str, unicode))
-                        else self.profile_text)
+                        else self.timeline_text)
+            if 'error' not in timeline:
+                lists = [s for s in
+                         [t['retweeted_status']['entities']['urls']for t in
+                          timeline if 'retweeted_status' in t] if s] + [
+                              t['entities']['urls']
+                              for t in timeline if 'entities' in t]
+                return list(set([urlparse.urlparse(u['expanded_url']).netloc
+                                 for u in itertools.chain(*lists)]))
+        return None
+
+    def get_times(self):
+        if self.timeline_text is not None:
+            times = collections.Counter()
+            timeline = (json.loads(self.timeline_text)
+                        if isinstance(self.profile_text, (str, unicode))
+                        else self.timeline_text)
             if 'error' not in timeline:
                 lists = [s for s in
                          [t['retweeted_status']['entities']['urls']for t in
@@ -94,3 +111,4 @@ class Score(ndb.Model):
     avg_interval = ndb.ComputedProperty(get_average_interval)
     websites = ndb.ComputedProperty(get_websites, repeated=True)
     hashtags = ndb.ComputedProperty(get_hashtags, repeated=True)
+    # time_histogram = ndb.ComputedProperty(get_times)

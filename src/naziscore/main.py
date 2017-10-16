@@ -6,6 +6,7 @@ import webapp2
 from google.appengine.ext import ndb
 
 from naziscore.handlers import (
+    BestHandler,
     ScoreByIdHandler,
     ScoreByNameHandler,
     WorstHandler,
@@ -29,6 +30,8 @@ app = webapp2.WSGIApplication(
             ScoreByIdHandler, name='score_handler_by_idv1'),
         webapp2.Route(
             '/v1/worst.csv', WorstHandler, name='worst_handler_v1'),
+        webapp2.Route(
+            '/v1/best.csv', BestHandler, name='best_handler_v1'),
         webapp2.Route(
             '/v1/worst_hashtags.csv',
             WorstHashtagsHandler,

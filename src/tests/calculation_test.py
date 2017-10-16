@@ -22,7 +22,7 @@ from naziscore.scoring import (
 from naziscore.models import Score
 
 
-class ScoringTest(unittest.TestCase):
+class GoodScoringTest(unittest.TestCase):
     """Verifies the profile JSON is being scored properly."""
 
     def setUp(self):
@@ -32,8 +32,8 @@ class ScoringTest(unittest.TestCase):
         self.testbed.init_memcache_stub()
         self.testbed.init_taskqueue_stub()
 
-        self.timeline = json.loads(open('tests/timeline.json').read())
-        self.profile = json.loads(open('tests/profile.json').read())
+        self.timeline = json.loads(open('tests/good_timeline.json').read())
+        self.profile = json.loads(open('tests/good_profile.json').read())
 
     def tearDown(self):
         self.testbed.deactivate()
