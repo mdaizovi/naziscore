@@ -71,8 +71,12 @@ class ScoreByIdHandler(webapp2.RequestHandler):
     @ndb.toplevel
     def get(self, twitter_id):
         self.response.headers['Content-Type'] = 'application/json'
-        twitter_id = int(twitter_id)
-        result = memcache.get('twitter_id:{}'.format(twitter_id))
+        try:
+            twitter_id = int(twitter_id)
+            result = memcache.get('twitter_id:{}'.format(twitter_id))
+        except ValueError:
+            logging.error(u'twitter_id ({}) not an integer'.format(twitter_id))
+            result = "twitter_id Invalid"
         if result is None:
             # We don't have a cached result.
             score = get_score_by_twitter_id(twitter_id, depth=0).get_result()
