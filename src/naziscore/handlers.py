@@ -76,6 +76,7 @@ class ScoreByIdHandler(webapp2.RequestHandler):
             result = memcache.get('twitter_id:{}'.format(twitter_id))
         except ValueError:
             logging.error(u'twitter_id ({}) not an integer'.format(twitter_id))
+            self.response.set_status(400)
             result = "twitter_id Invalid"
         if result is None:
             # We don't have a cached result.
